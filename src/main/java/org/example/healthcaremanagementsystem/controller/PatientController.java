@@ -280,6 +280,9 @@ public class PatientController {
             patientList.add(created);
             clearForm();
             showSuccess("Success", "Patient created successfully!");
+        } catch (IllegalArgumentException e) {
+            // Catch validation errors from service layer - prevents invalid data from being saved
+            showError("Validation Error", e.getMessage());
         } catch (Exception e) {
             showError("Error", "Failed to create patient: " + e.getMessage());
         }
@@ -343,13 +346,19 @@ public class PatientController {
     }
     
     /**
-     * Updates an existing patient record.
+     * Updates an existing patient record with strict validation.
+     * Prevents invalid data from being saved to database.
      */
     @FXML
     private void updatePatient() {
         if (selectedPatient == null) {
             showError("Error", "Please select a patient to update.");
             return;
+        }
+        
+        // Validate form before attempting to update
+        if (!validateForm()) {
+            return; // Stop here - do not proceed with database operation
         }
         
         try {
@@ -362,6 +371,9 @@ public class PatientController {
                 clearForm();
                 showSuccess("Success", "Patient updated successfully!");
             }
+        } catch (IllegalArgumentException e) {
+            // Catch validation errors from service layer
+            showError("Validation Error", e.getMessage());
         } catch (Exception e) {
             showError("Error", "Failed to update patient: " + e.getMessage());
         }

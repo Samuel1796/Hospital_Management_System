@@ -6,6 +6,7 @@
 
 <BorderPane xmlns="http://javafx.com/javafx"
             xmlns:fx="http://javafx.com/fxml"
+            fx:controller="org.example.healthcaremanagementsystem.controller.AppointmentController"
             style="-fx-background-color: #f5f5f5;">
     
     <top>
@@ -14,12 +15,78 @@
         </VBox>
     </top>
     
+    <left>
+        <VBox spacing="15" style="-fx-padding: 20; -fx-min-width: 350;">
+            <Label text="Appointment Information" style="-fx-font-size: 18px; -fx-font-weight: bold;"/>
+            
+            <GridPane hgap="10" vgap="15">
+                <columnConstraints>
+                    <ColumnConstraints minWidth="130"/>
+                    <ColumnConstraints minWidth="200"/>
+                </columnConstraints>
+                
+                <Label text="Patient:" GridPane.columnIndex="0" GridPane.rowIndex="0"/>
+                <ComboBox fx:id="comboPatient" GridPane.columnIndex="1" GridPane.rowIndex="0" prefWidth="200"/>
+                
+                <Label text="Doctor:" GridPane.columnIndex="0" GridPane.rowIndex="1"/>
+                <ComboBox fx:id="comboDoctor" GridPane.columnIndex="1" GridPane.rowIndex="1" prefWidth="200"/>
+                
+                <Label text="Date:" GridPane.columnIndex="0" GridPane.rowIndex="2"/>
+                <DatePicker fx:id="datePickerAppointmentDate" GridPane.columnIndex="1" GridPane.rowIndex="2" promptText="DD/MM/YYYY"/>
+                
+                <Label text="Time:" GridPane.columnIndex="0" GridPane.rowIndex="3"/>
+                <ComboBox fx:id="comboAppointmentTime" GridPane.columnIndex="1" GridPane.rowIndex="3" prefWidth="200"/>
+                
+                <Label text="Type:" GridPane.columnIndex="0" GridPane.rowIndex="4"/>
+                <ComboBox fx:id="comboAppointmentType" GridPane.columnIndex="1" GridPane.rowIndex="4" prefWidth="200"/>
+                
+                <Label text="Status:" GridPane.columnIndex="0" GridPane.rowIndex="5"/>
+                <ComboBox fx:id="comboStatus" GridPane.columnIndex="1" GridPane.rowIndex="5" prefWidth="200"/>
+                
+                <Label text="Notes:" GridPane.columnIndex="0" GridPane.rowIndex="6"/>
+                <TextArea fx:id="txtNotes" GridPane.columnIndex="1" GridPane.rowIndex="6" prefRowCount="4"/>
+            </GridPane>
+            
+            <HBox spacing="10" style="-fx-padding: 10 0 0 0;">
+                <Button fx:id="btnCreate" text="Create" prefWidth="80" 
+                        style="-fx-background-color: #27ae60; -fx-text-fill: white;"/>
+                <Button fx:id="btnUpdate" text="Update" prefWidth="80" 
+                        style="-fx-background-color: #f39c12; -fx-text-fill: white;" disable="true"/>
+                <Button fx:id="btnDelete" text="Delete" prefWidth="80" 
+                        style="-fx-background-color: #e74c3c; -fx-text-fill: white;" disable="true"/>
+                <Button fx:id="btnClear" text="Clear" prefWidth="80" 
+                        onAction="#clearForm"/>
+            </HBox>
+        </VBox>
+    </left>
+    
     <center>
-        <VBox alignment="CENTER" spacing="20" style="-fx-padding: 50;">
-            <Label text="Appointment Management Module" style="-fx-font-size: 20px;"/>
-            <Label text="This module is under development." style="-fx-text-fill: #7f8c8d;"/>
+        <VBox spacing="15" style="-fx-padding: 20;">
+            <!-- Search Section -->
+            <VBox spacing="10" style="-fx-background-color: white; -fx-padding: 15; -fx-background-radius: 5;">
+                <Label text="Search Appointments" style="-fx-font-size: 16px; -fx-font-weight: bold;"/>
+                <HBox spacing="10" alignment="CENTER_LEFT">
+                    <TextField fx:id="txtSearch" prefWidth="400" promptText="Search by patient or doctor name..."/>
+                    <Button fx:id="btnSearch" text="Search" onAction="#searchAppointments"
+                            style="-fx-background-color: #e74c3c; -fx-text-fill: white;"/>
+                    <Button fx:id="btnClearSearch" text="Clear Search" onAction="#clearSearch"
+                            style="-fx-background-color: #95a5a6; -fx-text-fill: white;"/>
+                </HBox>
+            </VBox>
+            
+            <!-- Appointments Table -->
+            <Label text="Appointment List" style="-fx-font-size: 16px; -fx-font-weight: bold;"/>
+            <TableView fx:id="tableViewAppointments" style="-fx-background-color: white;">
+                <columns>
+                    <TableColumn fx:id="colAppointmentId" text="ID" prefWidth="60"/>
+                    <TableColumn fx:id="colPatientName" text="Patient" prefWidth="150"/>
+                    <TableColumn fx:id="colDoctorName" text="Doctor" prefWidth="150"/>
+                    <TableColumn fx:id="colAppointmentDate" text="Date &amp; Time" prefWidth="150"/>
+                    <TableColumn fx:id="colAppointmentType" text="Type" prefWidth="120"/>
+                    <TableColumn fx:id="colStatus" text="Status" prefWidth="100"/>
+                </columns>
+            </TableView>
         </VBox>
     </center>
     
 </BorderPane>
-

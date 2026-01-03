@@ -277,12 +277,14 @@ public class DoctorController {
     }
     
     /**
-     * Creates a new doctor record with validation.
+     * Creates a new doctor record with strict validation.
+     * Prevents invalid data from being saved to database.
      */
     @FXML
     private void createDoctor() {
+        // Validate form before attempting to create
         if (!validateForm()) {
-            return;
+            return; // Stop here - do not proceed with database operation
         }
         
         try {
@@ -291,13 +293,17 @@ public class DoctorController {
             doctorList.add(created);
             clearForm();
             showSuccess("Success", "Doctor created successfully!");
+        } catch (IllegalArgumentException e) {
+            // Catch validation errors from service layer
+            showError("Validation Error", e.getMessage());
         } catch (Exception e) {
             showError("Error", "Failed to create doctor: " + e.getMessage());
         }
     }
     
     /**
-     * Updates an existing doctor record.
+     * Updates an existing doctor record with strict validation.
+     * Prevents invalid data from being saved to database.
      */
     @FXML
     private void updateDoctor() {
@@ -306,8 +312,9 @@ public class DoctorController {
             return;
         }
         
+        // Validate form before attempting to update
         if (!validateForm()) {
-            return;
+            return; // Stop here - do not proceed with database operation
         }
         
         try {
@@ -320,6 +327,9 @@ public class DoctorController {
                 clearForm();
                 showSuccess("Success", "Doctor updated successfully!");
             }
+        } catch (IllegalArgumentException e) {
+            // Catch validation errors from service layer
+            showError("Validation Error", e.getMessage());
         } catch (Exception e) {
             showError("Error", "Failed to update doctor: " + e.getMessage());
         }
