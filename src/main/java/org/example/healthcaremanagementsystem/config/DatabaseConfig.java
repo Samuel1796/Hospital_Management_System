@@ -19,7 +19,7 @@ public class DatabaseConfig {
     private static final String DB_USER = "postgres";
     private static final String DB_PASSWORD = "0050";
     
-    // Singleton instance for connection management
+    // Instance for connection management
     private static DatabaseConfig instance;
     private Connection connection;
     

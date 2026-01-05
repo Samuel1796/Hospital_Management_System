@@ -14,8 +14,7 @@ import java.util.stream.Collectors;
  * - Binary search for sorted data (O(log n))
  * - Hash-based search using Java Streams
  * 
- * @author Healthcare Management System Team
- * @version 1.0
+
  */
 public class SearchUtil {
     
