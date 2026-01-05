@@ -60,7 +60,7 @@ public class MainController {
             Parent root = loader.load();
             Stage stage = new Stage();
             stage.setTitle("Patient Management");
-            stage.setScene(new Scene(root, 1000, 700));
+            stage.setScene(new Scene(root, 1200, 600));
             stage.show();
         } catch (IOException e) {
             e.printStackTrace();
@@ -78,7 +78,7 @@ public class MainController {
             Parent root = loader.load();
             Stage stage = new Stage();
             stage.setTitle("Doctor Management");
-            stage.setScene(new Scene(root, 1200, 700));
+            stage.setScene(new Scene(root, 1200, 600));
             stage.show();
         } catch (IOException e) {
             e.printStackTrace();
@@ -96,7 +96,7 @@ public class MainController {
             Parent root = loader.load();
             Stage stage = new Stage();
             stage.setTitle("Appointment Management");
-            stage.setScene(new Scene(root, 1200, 700));
+            stage.setScene(new Scene(root, 1200, 600));
             stage.show();
         } catch (IOException e) {
             e.printStackTrace();
@@ -114,7 +114,7 @@ public class MainController {
             Parent root = loader.load();
             Stage stage = new Stage();
             stage.setTitle("Performance & Analytics");
-            stage.setScene(new Scene(root, 1200, 800));
+            stage.setScene(new Scene(root, 1200, 600));
             stage.show();
         } catch (IOException e) {
             e.printStackTrace();

@@ -5,9 +5,7 @@ import java.time.LocalDate;
 /**
  * Data Transfer Object (DTO) representing a Patient entity.
  * Follows DTO pattern to transfer data between layers.
- * 
- * @author Healthcare Management System Team
- * @version 1.0
+ *
  */
 public class Patient {
     

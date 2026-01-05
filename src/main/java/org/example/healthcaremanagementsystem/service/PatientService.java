@@ -16,9 +16,7 @@ import java.util.stream.Collectors;
  * Follows Single Responsibility Principle by handling only patient-related business operations.
  * Acts as a bridge between Controller and DAO layers.
  * Implements caching and search optimization.
- * 
- * @author Healthcare Management System Team
- * @version 1.0
+ *
  */
 public class PatientService {
     

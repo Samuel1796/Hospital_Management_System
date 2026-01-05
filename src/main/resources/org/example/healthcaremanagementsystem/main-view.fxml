@@ -74,7 +74,7 @@
     
     <bottom>
         <VBox alignment="CENTER" style="-fx-background-color: #34495e; -fx-padding: 15;">
-            <Label text="Healthcare Management System | Built with JavaFX, PostgreSQL, and JDBC"
+            <Label text="Healthcare Management System"
                    style="-fx-text-fill: #ecf0f1; -fx-font-size: 11px;"/>
         </VBox>
     </bottom>

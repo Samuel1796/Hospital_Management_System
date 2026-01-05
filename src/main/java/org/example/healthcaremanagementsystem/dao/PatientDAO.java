@@ -6,11 +6,7 @@ import java.util.Optional;
 
 /**
  * Data Access Object interface for Patient entity.
- * Follows Interface Segregation Principle by defining only patient-related operations.
- * Supports CRUD operations and search functionality.
- * 
- * @author Healthcare Management System Team
- * @version 1.0
+
  */
 public interface PatientDAO {
     
@@ -22,7 +18,9 @@ public interface PatientDAO {
      * @throws Exception if database operation fails
      */
     Patient create(Patient patient) throws Exception;
-    
+
+
+
     /**
      * Retrieves a patient by their unique identifier.
      * 
@@ -31,7 +29,9 @@ public interface PatientDAO {
      * @throws Exception if database operation fails
      */
     Optional<Patient> findById(Integer patientId) throws Exception;
-    
+
+
+
     /**
      * Retrieves all patients from the database.
      * 
@@ -39,7 +39,9 @@ public interface PatientDAO {
      * @throws Exception if database operation fails
      */
     List<Patient> findAll() throws Exception;
-    
+
+
+
     /**
      * Updates an existing patient record.
      * 
@@ -48,7 +50,9 @@ public interface PatientDAO {
      * @throws Exception if database operation fails
      */
     boolean update(Patient patient) throws Exception;
-    
+
+
+
     /**
      * Deletes a patient record by ID.
      * 
@@ -57,7 +61,9 @@ public interface PatientDAO {
      * @throws Exception if database operation fails
      */
     boolean delete(Integer patientId) throws Exception;
-    
+
+
+
     /**
      * Searches for patients by name (case-insensitive).
      * Uses database indexing for optimized search performance.
@@ -67,7 +73,9 @@ public interface PatientDAO {
      * @throws Exception if database operation fails
      */
     List<Patient> searchByName(String name) throws Exception;
-    
+
+
+
     /**
      * Searches for a patient by email address.
      * 
@@ -76,7 +84,9 @@ public interface PatientDAO {
      * @throws Exception if database operation fails
      */
     Optional<Patient> findByEmail(String email) throws Exception;
-    
+
+
+
     /**
      * Searches for patients by phone number.
      * 

@@ -12,10 +12,7 @@ import java.util.Optional;
 /**
  * Implementation of PatientDAO interface.
  * Follows Single Responsibility Principle by handling only patient data access.
- * Uses parameterized queries to prevent SQL injection attacks.
- * 
- * @author Healthcare Management System Team
- * @version 1.0
+
  */
 public class PatientDAOImpl implements PatientDAO {
     

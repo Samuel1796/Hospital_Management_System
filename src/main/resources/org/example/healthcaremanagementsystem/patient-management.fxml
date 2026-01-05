@@ -16,13 +16,13 @@
     </top>
     
     <left>
-        <VBox spacing="15" style="-fx-padding: 20; -fx-min-width: 350;">
+        <VBox spacing="15" style="-fx-padding: 20; -fx-min-width: 250;">
             <Label text="Patient Information" style="-fx-font-size: 18px; -fx-font-weight: bold;"/>
             
             <GridPane hgap="10" vgap="15">
                 <columnConstraints>
                     <ColumnConstraints minWidth="120"/>
-                    <ColumnConstraints minWidth="200"/>
+                    <ColumnConstraints minWidth="170"/>
                 </columnConstraints>
                 
                 <Label text="First Name:" GridPane.columnIndex="0" GridPane.rowIndex="0"/>
