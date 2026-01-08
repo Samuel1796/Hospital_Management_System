@@ -83,5 +83,21 @@ public interface DoctorDAO {
      * @throws Exception if database operation fails
      */
     List<Doctor> searchByName(String name) throws Exception;
+    
+    /**
+     * Gets the total count of doctors.
+     * 
+     * @return Total number of doctors
+     * @throws Exception if database operation fails
+     */
+    int getCount() throws Exception;
+    
+    /**
+     * Gets the count of active doctors.
+     * 
+     * @return Number of active doctors
+     * @throws Exception if database operation fails
+     */
+    int getActiveCount() throws Exception;
 }
 

@@ -4,60 +4,59 @@
 <?import javafx.scene.chart.*?>
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
-<?import javafx.scene.text.Font?>
 
 <BorderPane xmlns="http://javafx.com/javafx"
             xmlns:fx="http://javafx.com/fxml"
             fx:controller="org.example.healthcaremanagementsystem.controller.PerformanceController"
-            style="-fx-background-color: #fafafa;">
+            style="-fx-background-color: #f8f9fa;">
     
+    <!-- Header -->
     <top>
-        <VBox style="-fx-background-color: #ffffff; -fx-padding: 20 24; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.06), 0, 0, 0, 1);">
-            <Label text="Performance &amp; Analytics Dashboard" style="-fx-text-fill: #1a1a1a; -fx-font-size: 28px; -fx-font-weight: 600;"/>
-            <Label text="System performance metrics and query optimization analysis" style="-fx-text-fill: #6b7280; -fx-font-size: 14px; -fx-padding: 4 0 0 0;"/>
+        <VBox style="-fx-background-color: #ffffff; -fx-border-color: #e0e0e0; -fx-border-width: 0 0 1 0;">
+            <HBox alignment="CENTER_LEFT" style="-fx-padding: 16 24;">
+                <VBox>
+                    <Label text="Performance Analytics" style="-fx-text-fill: #263238; -fx-font-size: 22px; -fx-font-weight: bold;"/>
+                    <Label text="System metrics and query optimization analysis" style="-fx-text-fill: #78909c; -fx-font-size: 12px; -fx-padding: 2 0 0 0;"/>
+                </VBox>
+            </HBox>
         </VBox>
     </top>
     
     <center>
-        <ScrollPane fitToWidth="true" style="-fx-background: transparent;">
-            <VBox spacing="24" style="-fx-padding: 24;">
-                <!-- System Statistics -->
-                <VBox spacing="12">
-                    <Label text="System Statistics" style="-fx-font-size: 18px; -fx-font-weight: 600; -fx-text-fill: #1a1a1a;"/>
-                    <GridPane hgap="16" vgap="16">
-                        <columnConstraints>
-                            <ColumnConstraints minWidth="200" prefWidth="200"/>
-                            <ColumnConstraints minWidth="200" prefWidth="200"/>
-                            <ColumnConstraints minWidth="200" prefWidth="200"/>
-                            <ColumnConstraints minWidth="200" prefWidth="200"/>
-                        </columnConstraints>
-                        
-                        <VBox spacing="8" alignment="CENTER" style="-fx-background-color: #ffffff; -fx-padding: 20; -fx-background-radius: 8; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.04), 4, 0, 0, 1);" GridPane.columnIndex="0" GridPane.rowIndex="0">
-                            <Label text="Total Patients" style="-fx-text-fill: #6b7280; -fx-font-size: 13px;"/>
-                            <Label fx:id="lblTotalPatients" text="0" style="-fx-font-size: 32px; -fx-font-weight: 600; -fx-text-fill: #3b82f6;"/>
-                        </VBox>
-                        
-                        <VBox spacing="8" alignment="CENTER" style="-fx-background-color: #ffffff; -fx-padding: 20; -fx-background-radius: 8; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.04), 4, 0, 0, 1);" GridPane.columnIndex="1" GridPane.rowIndex="0">
-                            <Label text="Total Appointments" style="-fx-text-fill: #6b7280; -fx-font-size: 13px;"/>
-                            <Label fx:id="lblTotalAppointments" text="0" style="-fx-font-size: 32px; -fx-font-weight: 600; -fx-text-fill: #10b981;"/>
-                        </VBox>
-                        
-                        <VBox spacing="8" alignment="CENTER" style="-fx-background-color: #ffffff; -fx-padding: 20; -fx-background-radius: 8; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.04), 4, 0, 0, 1);" GridPane.columnIndex="2" GridPane.rowIndex="0">
-                            <Label text="Active Doctors" style="-fx-text-fill: #6b7280; -fx-font-size: 13px;"/>
-                            <Label fx:id="lblActiveDoctors" text="0" style="-fx-font-size: 32px; -fx-font-weight: 600; -fx-text-fill: #ef4444;"/>
-                        </VBox>
-                        
-                        <VBox spacing="8" alignment="CENTER" style="-fx-background-color: #ffffff; -fx-padding: 20; -fx-background-radius: 8; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.04), 4, 0, 0, 1);" GridPane.columnIndex="3" GridPane.rowIndex="0">
-                            <Label text="Cache Hit Rate" style="-fx-text-fill: #6b7280; -fx-font-size: 13px;"/>
-                            <Label fx:id="lblCacheHitRate" text="0%" style="-fx-font-size: 32px; -fx-font-weight: 600; -fx-text-fill: #8b5cf6;"/>
-                        </VBox>
-                    </GridPane>
-                </VBox>
+        <ScrollPane fitToWidth="true" style="-fx-background: #f8f9fa; -fx-background-color: #f8f9fa;">
+            <VBox spacing="16" style="-fx-padding: 20;">
                 
-                <!-- Appointments Chart -->
-                <VBox spacing="12">
-                    <Label text="Appointments by Status" style="-fx-font-size: 18px; -fx-font-weight: 600; -fx-text-fill: #1a1a1a;"/>
-                    <BarChart fx:id="chartAppointmentsByStatus" style="-fx-background-color: #ffffff; -fx-background-radius: 8; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.04), 4, 0, 0, 1);" prefHeight="300">
+                <!-- Statistics Cards -->
+                <HBox spacing="16">
+                    <VBox HBox.hgrow="ALWAYS" style="-fx-background-color: #ffffff; -fx-padding: 20; -fx-border-color: #e0e0e0; -fx-border-width: 1; -fx-border-radius: 3; -fx-background-radius: 3;">
+                        <Label text="Total Patients" style="-fx-text-fill: #78909c; -fx-font-size: 11px;"/>
+                        <Label fx:id="lblTotalPatients" text="0" style="-fx-text-fill: #263238; -fx-font-size: 32px; -fx-font-weight: bold; -fx-padding: 4 0;"/>
+                        <Label text="Registered in system" style="-fx-text-fill: #90a4ae; -fx-font-size: 10px;"/>
+                    </VBox>
+                    
+                    <VBox HBox.hgrow="ALWAYS" style="-fx-background-color: #ffffff; -fx-padding: 20; -fx-border-color: #e0e0e0; -fx-border-width: 1; -fx-border-radius: 3; -fx-background-radius: 3;">
+                        <Label text="Total Appointments" style="-fx-text-fill: #78909c; -fx-font-size: 11px;"/>
+                        <Label fx:id="lblTotalAppointments" text="0" style="-fx-text-fill: #263238; -fx-font-size: 32px; -fx-font-weight: bold; -fx-padding: 4 0;"/>
+                        <Label text="All time" style="-fx-text-fill: #90a4ae; -fx-font-size: 10px;"/>
+                    </VBox>
+                    
+                    <VBox HBox.hgrow="ALWAYS" style="-fx-background-color: #ffffff; -fx-padding: 20; -fx-border-color: #e0e0e0; -fx-border-width: 1; -fx-border-radius: 3; -fx-background-radius: 3;">
+                        <Label text="Active Doctors" style="-fx-text-fill: #78909c; -fx-font-size: 11px;"/>
+                        <Label fx:id="lblActiveDoctors" text="0" style="-fx-text-fill: #263238; -fx-font-size: 32px; -fx-font-weight: bold; -fx-padding: 4 0;"/>
+                        <Label text="On staff" style="-fx-text-fill: #90a4ae; -fx-font-size: 10px;"/>
+                    </VBox>
+                    
+                    <VBox HBox.hgrow="ALWAYS" style="-fx-background-color: #ffffff; -fx-padding: 20; -fx-border-color: #e0e0e0; -fx-border-width: 1; -fx-border-radius: 3; -fx-background-radius: 3;">
+                        <Label text="Cache Hit Rate" style="-fx-text-fill: #78909c; -fx-font-size: 11px;"/>
+                        <Label fx:id="lblCacheHitRate" text="0%" style="-fx-text-fill: #1e3a5f; -fx-font-size: 32px; -fx-font-weight: bold; -fx-padding: 4 0;"/>
+                        <Label text="Performance metric" style="-fx-text-fill: #90a4ae; -fx-font-size: 10px;"/>
+                    </VBox>
+                </HBox>
+                
+                <!-- Chart Section -->
+                <VBox style="-fx-background-color: #ffffff; -fx-padding: 20; -fx-border-color: #e0e0e0; -fx-border-width: 1; -fx-border-radius: 3; -fx-background-radius: 3;">
+                    <Label text="Appointments by Status" style="-fx-font-size: 14px; -fx-font-weight: bold; -fx-text-fill: #263238; -fx-padding: 0 0 12 0;"/>
+                    <BarChart fx:id="chartAppointmentsByStatus" prefHeight="280">
                         <xAxis>
                             <CategoryAxis label="Status"/>
                         </xAxis>
@@ -68,27 +67,22 @@
                 </VBox>
                 
                 <!-- Performance Metrics Table -->
-                <VBox spacing="12">
-                    <Label text="Performance Optimization Metrics" style="-fx-font-size: 18px; -fx-font-weight: 600; -fx-text-fill: #1a1a1a;"/>
-                    <TableView fx:id="tableViewMetrics" style="-fx-background-color: #ffffff; -fx-background-radius: 8; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.04), 4, 0, 0, 1);">
+                <VBox style="-fx-background-color: #ffffff; -fx-border-color: #e0e0e0; -fx-border-width: 1; -fx-border-radius: 3; -fx-background-radius: 3;">
+                    <HBox alignment="CENTER_LEFT" style="-fx-padding: 16; -fx-border-color: #e0e0e0; -fx-border-width: 0 0 1 0;">
+                        <Label text="Query Performance Metrics" style="-fx-font-size: 14px; -fx-font-weight: bold; -fx-text-fill: #263238;"/>
+                    </HBox>
+                    <TableView fx:id="tableViewMetrics" prefHeight="200">
                         <columns>
-                            <TableColumn fx:id="colMetricName" text="Metric" prefWidth="250"/>
-                            <TableColumn fx:id="colBeforeOptimization" text="Before Optimization" prefWidth="200"/>
-                            <TableColumn fx:id="colAfterOptimization" text="After Optimization" prefWidth="200"/>
-                            <TableColumn fx:id="colImprovement" text="Improvement" prefWidth="150"/>
+                            <TableColumn fx:id="colMetricName" text="Metric" prefWidth="220"/>
+                            <TableColumn fx:id="colBeforeOptimization" text="Before Optimization" prefWidth="160"/>
+                            <TableColumn fx:id="colAfterOptimization" text="After Optimization" prefWidth="160"/>
+                            <TableColumn fx:id="colImprovement" text="Improvement" prefWidth="120"/>
                         </columns>
                     </TableView>
                 </VBox>
+                
             </VBox>
         </ScrollPane>
     </center>
     
-    <bottom>
-        <VBox alignment="CENTER" style="-fx-background-color: #ffffff; -fx-padding: 16; -fx-border-color: #e5e7eb; -fx-border-width: 1 0 0 0;">
-            <Label text="Performance metrics demonstrate the impact of indexing and caching on query execution times" 
-                   style="-fx-text-fill: #6b7280; -fx-font-size: 12px;"/>
-        </VBox>
-    </bottom>
-    
 </BorderPane>
-

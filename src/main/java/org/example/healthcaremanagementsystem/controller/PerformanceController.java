@@ -4,25 +4,17 @@ import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
 import javafx.scene.chart.BarChart;
-import javafx.scene.chart.CategoryAxis;
-import javafx.scene.chart.NumberAxis;
 import javafx.scene.chart.XYChart;
 import javafx.scene.control.Label;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 import javafx.scene.control.cell.PropertyValueFactory;
 import org.example.healthcaremanagementsystem.config.DatabaseConfig;
-import org.example.healthcaremanagementsystem.dao.AppointmentDAO;
-import org.example.healthcaremanagementsystem.dao.AppointmentDAOImpl;
-import org.example.healthcaremanagementsystem.dao.PatientDAO;
-import org.example.healthcaremanagementsystem.dao.PatientDAOImpl;
-import org.example.healthcaremanagementsystem.model.Appointment;
+import org.example.healthcaremanagementsystem.dao.*;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
-import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -67,6 +59,7 @@ public class PerformanceController {
     
     private final DatabaseConfig dbConfig;
     private final PatientDAO patientDAO;
+    private final DoctorDAO doctorDAO;
     private final AppointmentDAO appointmentDAO;
     
     /**
@@ -75,6 +68,7 @@ public class PerformanceController {
     public PerformanceController() {
         this.dbConfig = DatabaseConfig.getInstance();
         this.patientDAO = new PatientDAOImpl();
+        this.doctorDAO = new DoctorDAOImpl();
         this.appointmentDAO = new AppointmentDAOImpl();
     }
     
@@ -104,29 +98,28 @@ public class PerformanceController {
      */
     private void loadSystemStatistics() {
         try {
-            // Count total patients
-            int totalPatients = patientDAO.findAll().size();
+            // Count total patients using efficient count query
+            int totalPatients = patientDAO.getCount();
             lblTotalPatients.setText(String.valueOf(totalPatients));
             
-            // Count total appointments
-            int totalAppointments = appointmentDAO.findAll().size();
+            // Count total appointments using efficient count query
+            int totalAppointments = appointmentDAO.getCount();
             lblTotalAppointments.setText(String.valueOf(totalAppointments));
             
-            // Count active doctors
-            String sql = "SELECT COUNT(*) FROM doctors WHERE status = 'Active'";
-            try (Connection conn = dbConfig.getConnection();
-                 PreparedStatement pstmt = conn.prepareStatement(sql);
-                 ResultSet rs = pstmt.executeQuery()) {
-                if (rs.next()) {
-                    lblActiveDoctors.setText(String.valueOf(rs.getInt(1)));
-                }
-            }
+            // Count active doctors using efficient count query
+            int activeDoctors = doctorDAO.getActiveCount();
+            lblActiveDoctors.setText(String.valueOf(activeDoctors));
             
             // Cache hit rate (simulated - in real implementation, track actual cache hits)
             lblCacheHitRate.setText("85%");
             
         } catch (Exception e) {
             e.printStackTrace();
+            // Set defaults on error
+            lblTotalPatients.setText("--");
+            lblTotalAppointments.setText("--");
+            lblActiveDoctors.setText("--");
+            lblCacheHitRate.setText("--");
         }
     }
     

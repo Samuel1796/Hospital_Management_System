@@ -6,23 +6,28 @@
 
 <BorderPane xmlns="http://javafx.com/javafx"
             xmlns:fx="http://javafx.com/fxml"
-            style="-fx-background-color: #fafafa;">
+            style="-fx-background-color: #f8f9fa;">
     
+    <!-- Header -->
     <top>
-        <VBox style="-fx-background-color: #ffffff; -fx-padding: 20 24; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.06), 0, 0, 0, 1);">
-            <Label text="Reports &amp; Analytics" style="-fx-text-fill: #1a1a1a; -fx-font-size: 28px; -fx-font-weight: 600;"/>
-            <Label text="Generate comprehensive reports and analytics" style="-fx-text-fill: #6b7280; -fx-font-size: 14px; -fx-padding: 4 0 0 0;"/>
+        <VBox style="-fx-background-color: #ffffff; -fx-border-color: #e0e0e0; -fx-border-width: 0 0 1 0;">
+            <HBox alignment="CENTER_LEFT" style="-fx-padding: 16 24;">
+                <VBox>
+                    <Label text="Reports" style="-fx-text-fill: #263238; -fx-font-size: 22px; -fx-font-weight: bold;"/>
+                    <Label text="Generate and export system reports" style="-fx-text-fill: #78909c; -fx-font-size: 12px; -fx-padding: 2 0 0 0;"/>
+                </VBox>
+            </HBox>
         </VBox>
     </top>
     
     <center>
-        <VBox alignment="CENTER" spacing="16" style="-fx-padding: 60 40;">
-            <VBox spacing="8" alignment="CENTER" style="-fx-background-color: #ffffff; -fx-padding: 40; -fx-background-radius: 12; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.06), 8, 0, 0, 2);">
-                <Label text="Reports &amp; Analytics Module" style="-fx-font-size: 20px; -fx-font-weight: 600; -fx-text-fill: #1a1a1a;"/>
-                <Label text="This module provides comprehensive reporting capabilities" style="-fx-text-fill: #6b7280; -fx-font-size: 14px; -fx-padding: 8 0 0 0;"/>
+        <VBox alignment="CENTER" spacing="16" style="-fx-padding: 40;">
+            <VBox alignment="CENTER" spacing="8" style="-fx-background-color: #ffffff; -fx-padding: 40; -fx-border-color: #e0e0e0; -fx-border-width: 1; -fx-border-radius: 3; -fx-background-radius: 3;">
+                <Label text="Reports Module" style="-fx-font-size: 18px; -fx-font-weight: bold; -fx-text-fill: #263238;"/>
+                <Label text="Comprehensive reporting and export functionality" style="-fx-text-fill: #78909c; -fx-font-size: 13px;"/>
+                <Label text="Available in future release" style="-fx-text-fill: #90a4ae; -fx-font-size: 11px; -fx-padding: 8 0 0 0;"/>
             </VBox>
         </VBox>
     </center>
     
 </BorderPane>
-
