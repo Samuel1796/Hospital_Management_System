@@ -4,7 +4,6 @@ import org.example.healthcaremanagementsystem.config.DatabaseConfig;
 import org.example.healthcaremanagementsystem.model.Patient;
 
 import java.sql.*;
-import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -198,6 +197,21 @@ public class PatientDAOImpl implements PatientDAO {
             }
         }
         return patients;
+    }
+    
+    @Override
+    public int getCount() throws Exception {
+        String sql = "SELECT COUNT(*) FROM patients";
+        
+        try (Connection conn = dbConfig.getConnection();
+             PreparedStatement pstmt = conn.prepareStatement(sql);
+             ResultSet rs = pstmt.executeQuery()) {
+            
+            if (rs.next()) {
+                return rs.getInt(1);
+            }
+        }
+        return 0;
     }
     
     /**

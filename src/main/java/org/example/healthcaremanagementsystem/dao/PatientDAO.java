@@ -95,5 +95,13 @@ public interface PatientDAO {
      * @throws Exception if database operation fails
      */
     List<Patient> findByPhoneNumber(String phoneNumber) throws Exception;
+    
+    /**
+     * Gets the total count of patients.
+     * 
+     * @return Total number of patients
+     * @throws Exception if database operation fails
+     */
+    int getCount() throws Exception;
 }
 

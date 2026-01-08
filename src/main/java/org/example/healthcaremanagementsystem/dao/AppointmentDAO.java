@@ -85,5 +85,21 @@ public interface AppointmentDAO {
      * @throws Exception if database operation fails
      */
     List<Appointment> findByDateRange(LocalDateTime startDate, LocalDateTime endDate) throws Exception;
+    
+    /**
+     * Gets the total count of appointments.
+     * 
+     * @return Total number of appointments
+     * @throws Exception if database operation fails
+     */
+    int getCount() throws Exception;
+    
+    /**
+     * Gets the count of appointments for the current month.
+     * 
+     * @return Number of appointments this month
+     * @throws Exception if database operation fails
+     */
+    int getCountThisMonth() throws Exception;
 }
 

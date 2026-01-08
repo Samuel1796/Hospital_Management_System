@@ -5,17 +5,15 @@ import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
+import javafx.scene.control.Label;
 import javafx.stage.Stage;
+import org.example.healthcaremanagementsystem.dao.*;
 
 import java.io.IOException;
 
 /**
  * Main controller for the Healthcare Management System application.
- * Handles navigation between different modules.
- * Follows Single Responsibility Principle by managing only navigation logic.
- * 
- * @author Healthcare Management System Team
- * @version 1.0
+ * Handles navigation between different modules and displays dashboard statistics.
  */
 public class MainController {
     
@@ -31,27 +29,76 @@ public class MainController {
     @FXML
     private Button btnViewReports;
     
+    @FXML
+    private Label lblPatientCount;
+    
+    @FXML
+    private Label lblDoctorCount;
+    
+    @FXML
+    private Label lblAppointmentCount;
+    
+    private final PatientDAO patientDAO;
+    private final DoctorDAO doctorDAO;
+    private final AppointmentDAO appointmentDAO;
+    
+    public MainController() {
+        this.patientDAO = new PatientDAOImpl();
+        this.doctorDAO = new DoctorDAOImpl();
+        this.appointmentDAO = new AppointmentDAOImpl();
+    }
+    
     /**
      * Initializes the controller.
      * Called automatically by JavaFX after FXML loading.
      */
     @FXML
     private void initialize() {
-        // Setup button actions
-        setupButtonActions();
+        loadDashboardStatistics();
     }
     
     /**
-     * Sets up event handlers for navigation buttons.
+     * Loads statistics from the database and updates the dashboard labels.
      */
-    private void setupButtonActions() {
-        // Button actions are handled directly via FXML onAction attributes
-        // This method is kept for potential programmatic setup if needed
+    private void loadDashboardStatistics() {
+        try {
+            // Load patient count
+            int patientCount = patientDAO.getCount();
+            if (lblPatientCount != null) {
+                lblPatientCount.setText(String.valueOf(patientCount));
+            }
+            
+            // Load active doctor count
+            int doctorCount = doctorDAO.getActiveCount();
+            if (lblDoctorCount != null) {
+                lblDoctorCount.setText(String.valueOf(doctorCount));
+            }
+            
+            // Load appointments this month
+            int appointmentCount = appointmentDAO.getCountThisMonth();
+            if (lblAppointmentCount != null) {
+                lblAppointmentCount.setText(String.valueOf(appointmentCount));
+            }
+            
+        } catch (Exception e) {
+            System.err.println("Error loading dashboard statistics: " + e.getMessage());
+            // Set default values on error
+            if (lblPatientCount != null) lblPatientCount.setText("--");
+            if (lblDoctorCount != null) lblDoctorCount.setText("--");
+            if (lblAppointmentCount != null) lblAppointmentCount.setText("--");
+        }
+    }
+    
+    /**
+     * Refreshes the dashboard statistics.
+     */
+    @FXML
+    public void refreshDashboard() {
+        loadDashboardStatistics();
     }
     
     /**
      * Opens the Patient Management module.
-     * Called from FXML onAction attribute.
      */
     @FXML
     public void openPatientManagement() {
@@ -61,6 +108,7 @@ public class MainController {
             Stage stage = new Stage();
             stage.setTitle("Patient Management");
             stage.setScene(new Scene(root, 1200, 600));
+            stage.setOnHidden(e -> loadDashboardStatistics()); // Refresh on close
             stage.show();
         } catch (IOException e) {
             e.printStackTrace();
@@ -69,7 +117,6 @@ public class MainController {
     
     /**
      * Opens the Doctor Management module.
-     * Called from FXML onAction attribute.
      */
     @FXML
     public void openDoctorManagement() {
@@ -79,6 +126,7 @@ public class MainController {
             Stage stage = new Stage();
             stage.setTitle("Doctor Management");
             stage.setScene(new Scene(root, 1200, 600));
+            stage.setOnHidden(e -> loadDashboardStatistics()); // Refresh on close
             stage.show();
         } catch (IOException e) {
             e.printStackTrace();
@@ -87,7 +135,6 @@ public class MainController {
     
     /**
      * Opens the Appointment Management module.
-     * Called from FXML onAction attribute.
      */
     @FXML
     public void openAppointmentManagement() {
@@ -97,6 +144,7 @@ public class MainController {
             Stage stage = new Stage();
             stage.setTitle("Appointment Management");
             stage.setScene(new Scene(root, 1200, 600));
+            stage.setOnHidden(e -> loadDashboardStatistics()); // Refresh on close
             stage.show();
         } catch (IOException e) {
             e.printStackTrace();
@@ -105,7 +153,6 @@ public class MainController {
     
     /**
      * Opens the Reports module.
-     * Called from FXML onAction attribute.
      */
     @FXML
     public void openReports() {
@@ -121,4 +168,3 @@ public class MainController {
         }
     }
 }
-

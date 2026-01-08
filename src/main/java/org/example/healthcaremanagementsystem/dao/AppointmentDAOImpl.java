@@ -185,6 +185,38 @@ public class AppointmentDAOImpl implements AppointmentDAO {
         return appointments;
     }
     
+    @Override
+    public int getCount() throws Exception {
+        String sql = "SELECT COUNT(*) FROM appointments";
+        
+        try (Connection conn = dbConfig.getConnection();
+             PreparedStatement pstmt = conn.prepareStatement(sql);
+             ResultSet rs = pstmt.executeQuery()) {
+            
+            if (rs.next()) {
+                return rs.getInt(1);
+            }
+        }
+        return 0;
+    }
+    
+    @Override
+    public int getCountThisMonth() throws Exception {
+        String sql = "SELECT COUNT(*) FROM appointments WHERE " +
+                     "EXTRACT(MONTH FROM appointment_date) = EXTRACT(MONTH FROM CURRENT_DATE) AND " +
+                     "EXTRACT(YEAR FROM appointment_date) = EXTRACT(YEAR FROM CURRENT_DATE)";
+        
+        try (Connection conn = dbConfig.getConnection();
+             PreparedStatement pstmt = conn.prepareStatement(sql);
+             ResultSet rs = pstmt.executeQuery()) {
+            
+            if (rs.next()) {
+                return rs.getInt(1);
+            }
+        }
+        return 0;
+    }
+    
     /**
      * Maps a ResultSet row to an Appointment object.
      * 

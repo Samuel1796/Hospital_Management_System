@@ -4,7 +4,6 @@ import org.example.healthcaremanagementsystem.config.DatabaseConfig;
 import org.example.healthcaremanagementsystem.model.Doctor;
 
 import java.sql.*;
-import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -194,6 +193,36 @@ public class DoctorDAOImpl implements DoctorDAO {
             }
         }
         return doctors;
+    }
+    
+    @Override
+    public int getCount() throws Exception {
+        String sql = "SELECT COUNT(*) FROM doctors";
+        
+        try (Connection conn = dbConfig.getConnection();
+             PreparedStatement pstmt = conn.prepareStatement(sql);
+             ResultSet rs = pstmt.executeQuery()) {
+            
+            if (rs.next()) {
+                return rs.getInt(1);
+            }
+        }
+        return 0;
+    }
+    
+    @Override
+    public int getActiveCount() throws Exception {
+        String sql = "SELECT COUNT(*) FROM doctors WHERE status = 'Active'";
+        
+        try (Connection conn = dbConfig.getConnection();
+             PreparedStatement pstmt = conn.prepareStatement(sql);
+             ResultSet rs = pstmt.executeQuery()) {
+            
+            if (rs.next()) {
+                return rs.getInt(1);
+            }
+        }
+        return 0;
     }
     
     /**
