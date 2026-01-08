@@ -12,8 +12,7 @@ import java.io.IOException;
  * Main application class for Healthcare Management System.
  * Initializes the JavaFX application and loads the main view.
  * 
- * @author Healthcare Management System Team
- * @version 1.0
+
  */
 public class HealthcareApplication extends Application {
     

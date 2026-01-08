@@ -56,7 +56,11 @@ Healthcare Management System/
 │   └── test/
 ├── database/
 │   ├── schema.sql                   # Database schema with indexes
-│   └── sample_data.sql              # Sample data for testing
+│   ├── sample_data.sql              # Sample data for testing
+│   └── create_database.sql         # Database creation script
+├── docs/
+│   ├── DIAGRAMS.md                 # Mermaid diagrams (ERDs, architecture, etc.)
+│   └── NOSQL_DESIGN.md             # NoSQL design for patient notes
 ├── pom.xml                          # Maven configuration
 └── README.md                        # This file
 ```
@@ -216,10 +220,53 @@ The application includes sample data for testing. You can:
 - Verify all dependencies are downloaded
 - Check console for error messages
 
+## Documentation
+
+### Database Diagrams
+Comprehensive Mermaid diagrams are available in `docs/DIAGRAMS.md`, including:
+- Conceptual, Logical, and Physical ERDs
+- Database Schema Diagrams
+- System Architecture Diagrams
+- Data Flow Diagrams
+- Class Diagrams
+- Sequence Diagrams
+- Use Case Diagrams
+- Component Diagrams
+- Performance Optimization Flow Diagrams
+
+### NoSQL Design
+A detailed NoSQL data model design for patient notes and medical logs is documented in `docs/NOSQL_DESIGN.md`. This document:
+- Explains why NoSQL is suitable for unstructured patient notes
+- Provides MongoDB document structure examples
+- Shows integration strategy with the relational database
+- Includes implementation examples and query patterns
+
+## Admin Panel
+
+The **Performance & Analytics Dashboard** serves as the admin panel, accessible from the main menu. It provides:
+- System statistics (Total Patients, Appointments, Active Doctors, Cache Hit Rate)
+- Performance optimization metrics (before/after optimization comparisons)
+- Appointments by status visualization
+- Query performance analysis
+
+## Requirements Compliance
+
+This project meets all specified requirements:
+
+✅ **Database Design (3NF)**: All tables normalized to Third Normal Form  
+✅ **Entity Groups**: Patients, Doctors, Departments, Appointments, Prescriptions, PrescriptionItems, PatientFeedback, MedicalInventory  
+✅ **Indexing**: Comprehensive indexes on frequently searched columns  
+✅ **CRUD Operations**: Full CRUD via JavaFX interface with validation  
+✅ **Search & Sort**: Case-insensitive search with indexing and in-memory sorting  
+✅ **Caching**: In-memory caching with HashMap for performance optimization  
+✅ **Performance Reporting**: Before/after optimization metrics documented  
+✅ **NoSQL Consideration**: Documented design for unstructured patient notes  
+✅ **Admin Panel**: Performance monitoring and analytics dashboard  
+✅ **Documentation**: Complete ERDs, architecture diagrams, and technical documentation
+
 ## Future Enhancements
 
-- [ ] NoSQL integration for unstructured data (patient notes)
-- [ ] Performance monitoring dashboard
+- [ ] MongoDB integration for patient notes (design documented)
 - [ ] Advanced reporting and analytics
 - [ ] User authentication and authorization
 - [ ] Email notifications for appointments
