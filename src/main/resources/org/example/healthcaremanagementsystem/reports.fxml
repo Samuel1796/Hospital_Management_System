@@ -6,18 +6,21 @@
 
 <BorderPane xmlns="http://javafx.com/javafx"
             xmlns:fx="http://javafx.com/fxml"
-            style="-fx-background-color: #f5f5f5;">
+            style="-fx-background-color: #fafafa;">
     
     <top>
-        <VBox style="-fx-background-color: #9b59b6; -fx-padding: 15;">
-            <Label text="Reports & Analytics" style="-fx-text-fill: white; -fx-font-size: 24px; -fx-font-weight: bold;"/>
+        <VBox style="-fx-background-color: #ffffff; -fx-padding: 20 24; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.06), 0, 0, 0, 1);">
+            <Label text="Reports &amp; Analytics" style="-fx-text-fill: #1a1a1a; -fx-font-size: 28px; -fx-font-weight: 600;"/>
+            <Label text="Generate comprehensive reports and analytics" style="-fx-text-fill: #6b7280; -fx-font-size: 14px; -fx-padding: 4 0 0 0;"/>
         </VBox>
     </top>
     
     <center>
-        <VBox alignment="CENTER" spacing="20" style="-fx-padding: 50;">
-            <Label text="Reports & Analytics Module" style="-fx-font-size: 20px;"/>
-            <Label text="This module is under development." style="-fx-text-fill: #7f8c8d;"/>
+        <VBox alignment="CENTER" spacing="16" style="-fx-padding: 60 40;">
+            <VBox spacing="8" alignment="CENTER" style="-fx-background-color: #ffffff; -fx-padding: 40; -fx-background-radius: 12; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.06), 8, 0, 0, 2);">
+                <Label text="Reports &amp; Analytics Module" style="-fx-font-size: 20px; -fx-font-weight: 600; -fx-text-fill: #1a1a1a;"/>
+                <Label text="This module provides comprehensive reporting capabilities" style="-fx-text-fill: #6b7280; -fx-font-size: 14px; -fx-padding: 8 0 0 0;"/>
+            </VBox>
         </VBox>
     </center>
     
