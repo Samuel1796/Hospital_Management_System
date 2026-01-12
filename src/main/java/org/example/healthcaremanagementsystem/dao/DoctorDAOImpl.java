@@ -225,6 +225,98 @@ public class DoctorDAOImpl implements DoctorDAO {
         return 0;
     }
     
+    @Override
+    public boolean emailExists(String email, Integer excludeDoctorId) throws Exception {
+        String sql = excludeDoctorId != null 
+            ? "SELECT COUNT(*) FROM doctors WHERE email = ? AND doctor_id != ?"
+            : "SELECT COUNT(*) FROM doctors WHERE email = ?";
+        
+        try (Connection conn = dbConfig.getConnection();
+             PreparedStatement pstmt = conn.prepareStatement(sql)) {
+            
+            pstmt.setString(1, email);
+            if (excludeDoctorId != null) {
+                pstmt.setInt(2, excludeDoctorId);
+            }
+            
+            try (ResultSet rs = pstmt.executeQuery()) {
+                if (rs.next()) {
+                    return rs.getInt(1) > 0;
+                }
+            }
+        }
+        return false;
+    }
+    
+    @Override
+    public boolean licenseNumberExists(String licenseNumber, Integer excludeDoctorId) throws Exception {
+        String sql = excludeDoctorId != null 
+            ? "SELECT COUNT(*) FROM doctors WHERE license_number = ? AND doctor_id != ?"
+            : "SELECT COUNT(*) FROM doctors WHERE license_number = ?";
+        
+        try (Connection conn = dbConfig.getConnection();
+             PreparedStatement pstmt = conn.prepareStatement(sql)) {
+            
+            pstmt.setString(1, licenseNumber);
+            if (excludeDoctorId != null) {
+                pstmt.setInt(2, excludeDoctorId);
+            }
+            
+            try (ResultSet rs = pstmt.executeQuery()) {
+                if (rs.next()) {
+                    return rs.getInt(1) > 0;
+                }
+            }
+        }
+        return false;
+    }
+    
+    @Override
+    public boolean phoneNumberExists(String phoneNumber, Integer excludeDoctorId) throws Exception {
+        String sql = excludeDoctorId != null 
+            ? "SELECT COUNT(*) FROM doctors WHERE phone_number = ? AND doctor_id != ?"
+            : "SELECT COUNT(*) FROM doctors WHERE phone_number = ?";
+        
+        try (Connection conn = dbConfig.getConnection();
+             PreparedStatement pstmt = conn.prepareStatement(sql)) {
+            
+            pstmt.setString(1, phoneNumber);
+            if (excludeDoctorId != null) {
+                pstmt.setInt(2, excludeDoctorId);
+            }
+            
+            try (ResultSet rs = pstmt.executeQuery()) {
+                if (rs.next()) {
+                    return rs.getInt(1) > 0;
+                }
+            }
+        }
+        return false;
+    }
+    
+    @Override
+    public void resetSequence() throws Exception {
+        try (Connection conn = dbConfig.getConnection()) {
+            // Get the max ID or set to 0 if no records exist
+            String getMaxSql = "SELECT COALESCE(MAX(doctor_id), 0) FROM doctors";
+            int maxId = 0;
+            
+            try (PreparedStatement pstmt = conn.prepareStatement(getMaxSql);
+                 ResultSet rs = pstmt.executeQuery()) {
+                if (rs.next()) {
+                    maxId = rs.getInt(1);
+                }
+            }
+            
+            // Reset sequence to max_id + 1 (or 1 if table is empty)
+            String resetSql = "SELECT setval('doctors_doctor_id_seq', ?, false)";
+            try (PreparedStatement pstmt = conn.prepareStatement(resetSql)) {
+                pstmt.setInt(1, maxId + 1);
+                pstmt.execute();
+            }
+        }
+    }
+    
     /**
      * Maps a ResultSet row to a Doctor object.
      * 

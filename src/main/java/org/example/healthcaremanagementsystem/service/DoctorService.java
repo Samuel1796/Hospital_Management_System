@@ -29,6 +29,24 @@ public class DoctorService {
     public Doctor createDoctor(Doctor doctor) throws Exception {
         validateDoctor(doctor);
         
+        // Check for duplicate email
+        if (doctorDAO.emailExists(doctor.getEmail(), null)) {
+            throw new IllegalArgumentException("A doctor with email '" + doctor.getEmail() + "' already exists.");
+        }
+        
+        // Check for duplicate license number
+        if (doctorDAO.licenseNumberExists(doctor.getLicenseNumber(), null)) {
+            throw new IllegalArgumentException("A doctor with license number '" + doctor.getLicenseNumber() + "' already exists.");
+        }
+        
+        // Check for duplicate phone number
+        if (doctorDAO.phoneNumberExists(doctor.getPhoneNumber(), null)) {
+            throw new IllegalArgumentException("A doctor with phone number '" + doctor.getPhoneNumber() + "' already exists.");
+        }
+        
+        // Reset sequence to ensure sequential IDs
+        doctorDAO.resetSequence();
+        
         Doctor createdDoctor = doctorDAO.create(doctor);
         cacheManager.cacheDoctor(createdDoctor.getDoctorId(), createdDoctor);
         
@@ -64,6 +82,21 @@ public class DoctorService {
     public boolean updateDoctor(Doctor doctor) throws Exception {
         validateDoctor(doctor);
         
+        // Check for duplicate email (excluding current doctor)
+        if (doctorDAO.emailExists(doctor.getEmail(), doctor.getDoctorId())) {
+            throw new IllegalArgumentException("A doctor with email '" + doctor.getEmail() + "' already exists.");
+        }
+        
+        // Check for duplicate license number (excluding current doctor)
+        if (doctorDAO.licenseNumberExists(doctor.getLicenseNumber(), doctor.getDoctorId())) {
+            throw new IllegalArgumentException("A doctor with license number '" + doctor.getLicenseNumber() + "' already exists.");
+        }
+        
+        // Check for duplicate phone number (excluding current doctor)
+        if (doctorDAO.phoneNumberExists(doctor.getPhoneNumber(), doctor.getDoctorId())) {
+            throw new IllegalArgumentException("A doctor with phone number '" + doctor.getPhoneNumber() + "' already exists.");
+        }
+        
         boolean updated = doctorDAO.update(doctor);
         if (updated) {
             cacheManager.invalidateDoctor(doctor.getDoctorId());
@@ -76,6 +109,8 @@ public class DoctorService {
         boolean deleted = doctorDAO.delete(doctorId);
         if (deleted) {
             cacheManager.invalidateDoctor(doctorId);
+            // Reset sequence for sequential IDs
+            doctorDAO.resetSequence();
         }
         return deleted;
     }

@@ -58,8 +58,7 @@
                     
                     <VBox spacing="4">
                         <Label text="Specialization *" style="-fx-text-fill: #546e7a; -fx-font-size: 11px;"/>
-                        <TextField fx:id="txtSpecialization" promptText="e.g. Cardiology, Neurology" 
-                                   style="-fx-background-color: #ffffff; -fx-border-color: #cfd8dc; -fx-border-radius: 3; -fx-background-radius: 3; -fx-padding: 8 10;"/>
+                        <ComboBox fx:id="comboSpecialization" maxWidth="1.7976931348623157E308" promptText="Select specialization"/>
                     </VBox>
                     
                     <VBox spacing="4">

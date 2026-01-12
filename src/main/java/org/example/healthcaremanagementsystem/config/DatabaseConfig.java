@@ -21,7 +21,6 @@ public class DatabaseConfig {
     
     // Instance for connection management
     private static DatabaseConfig instance;
-    private Connection connection;
     
     /**
      * Private constructor to enforce singleton pattern.
@@ -43,49 +42,55 @@ public class DatabaseConfig {
         return instance;
     }
     
+    // Flag to track if connection message has been shown
+    private static boolean connectionMessageShown = false;
+    
     /**
      * Establishes a connection to the PostgreSQL database.
-     * Uses connection pooling principles for efficient resource management.
+     * Creates a new connection for each request (proper connection handling).
      * 
      * @return Connection object to the database
      * @throws SQLException if database access error occurs
      */
     public Connection getConnection() throws SQLException {
-        if (connection == null || connection.isClosed()) {
-            try {
-                // Load PostgreSQL JDBC driver
-                Class.forName("org.postgresql.Driver");
-                
-                // Set connection properties for optimal performance
-                Properties props = new Properties();
-                props.setProperty("user", DB_USER);
-                props.setProperty("password", DB_PASSWORD);
-                props.setProperty("ssl", "false");
-                
-                // Establish connection
-                connection = DriverManager.getConnection(DB_URL, props);
-                
-                // Enable auto-commit for transaction management
-                connection.setAutoCommit(true);
-                
+        try {
+            // Load PostgreSQL JDBC driver
+            Class.forName("org.postgresql.Driver");
+            
+            // Set connection properties for optimal performance
+            Properties props = new Properties();
+            props.setProperty("user", DB_USER);
+            props.setProperty("password", DB_PASSWORD);
+            props.setProperty("ssl", "false");
+            
+            // Establish connection
+            Connection conn = DriverManager.getConnection(DB_URL, props);
+            
+            // Enable auto-commit for transaction management
+            conn.setAutoCommit(true);
+            
+            // Only show connection message once
+            if (!connectionMessageShown) {
                 System.out.println("Database connection established successfully.");
-            } catch (ClassNotFoundException e) {
-                throw new SQLException("PostgreSQL JDBC Driver not found.", e);
+                connectionMessageShown = true;
             }
+            
+            return conn;
+        } catch (ClassNotFoundException e) {
+            throw new SQLException("PostgreSQL JDBC Driver not found.", e);
         }
-        return connection;
     }
     
     /**
      * Closes the database connection.
      * Properly releases database resources.
      * 
+     * @param connection Connection to close
      * @throws SQLException if database access error occurs
      */
-    public void closeConnection() throws SQLException {
+    public void closeConnection(Connection connection) throws SQLException {
         if (connection != null && !connection.isClosed()) {
             connection.close();
-            System.out.println("Database connection closed.");
         }
     }
     
@@ -96,8 +101,7 @@ public class DatabaseConfig {
      * @return true if connection is valid, false otherwise
      */
     public boolean testConnection() {
-        try {
-            Connection conn = getConnection();
+        try (Connection conn = getConnection()) {
             return conn != null && !conn.isClosed();
         } catch (SQLException e) {
             System.err.println("Connection test failed: " + e.getMessage());

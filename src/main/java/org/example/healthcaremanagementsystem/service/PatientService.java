@@ -44,10 +44,17 @@ public class PatientService {
         validatePatient(patient);
         
         // Check for duplicate email
-        Optional<Patient> existingPatient = patientDAO.findByEmail(patient.getEmail());
-        if (existingPatient.isPresent()) {
-            throw new IllegalArgumentException("Patient with email " + patient.getEmail() + " already exists.");
+        if (patientDAO.emailExists(patient.getEmail(), null)) {
+            throw new IllegalArgumentException("A patient with email '" + patient.getEmail() + "' already exists.");
         }
+        
+        // Check for duplicate phone number
+        if (patientDAO.phoneNumberExists(patient.getPhoneNumber(), null)) {
+            throw new IllegalArgumentException("A patient with phone number '" + patient.getPhoneNumber() + "' already exists.");
+        }
+        
+        // Reset sequence to ensure sequential IDs
+        patientDAO.resetSequence();
         
         // Create patient in database
         Patient createdPatient = patientDAO.create(patient);
@@ -115,6 +122,16 @@ public class PatientService {
     public boolean updatePatient(Patient patient) throws Exception {
         validatePatient(patient);
         
+        // Check for duplicate email (excluding current patient)
+        if (patientDAO.emailExists(patient.getEmail(), patient.getPatientId())) {
+            throw new IllegalArgumentException("A patient with email '" + patient.getEmail() + "' already exists.");
+        }
+        
+        // Check for duplicate phone number (excluding current patient)
+        if (patientDAO.phoneNumberExists(patient.getPhoneNumber(), patient.getPatientId())) {
+            throw new IllegalArgumentException("A patient with phone number '" + patient.getPhoneNumber() + "' already exists.");
+        }
+        
         boolean updated = patientDAO.update(patient);
         
         if (updated) {
@@ -127,6 +144,7 @@ public class PatientService {
     
     /**
      * Deletes a patient by ID.
+     * Resets sequence after deletion for sequential IDs.
      * 
      * @param patientId Patient identifier
      * @return true if deletion successful
@@ -138,6 +156,8 @@ public class PatientService {
         if (deleted) {
             // Remove from cache
             cacheManager.invalidatePatient(patientId);
+            // Reset sequence for sequential IDs
+            patientDAO.resetSequence();
         }
         
         return deleted;
@@ -158,6 +178,58 @@ public class PatientService {
         
         // Use DAO's optimized search (leverages database indexes)
         return patientDAO.searchByName(name);
+    }
+    
+    /**
+     * Retrieves patients with pagination.
+     * 
+     * @param page Page number (0-based)
+     * @param pageSize Number of records per page
+     * @return List of patients for the specified page
+     * @throws Exception if database operation fails
+     */
+    public List<Patient> getPatientsPaginated(int page, int pageSize) throws Exception {
+        return patientDAO.findAllPaginated(page, pageSize);
+    }
+    
+    /**
+     * Searches patients by name with pagination.
+     * 
+     * @param name Search term
+     * @param page Page number (0-based)
+     * @param pageSize Number of records per page
+     * @return List of matching patients for the specified page
+     * @throws Exception if database operation fails
+     */
+    public List<Patient> searchPatientsPaginated(String name, int page, int pageSize) throws Exception {
+        if (name == null || name.trim().isEmpty()) {
+            return getPatientsPaginated(page, pageSize);
+        }
+        return patientDAO.searchByNamePaginated(name, page, pageSize);
+    }
+    
+    /**
+     * Gets the total count of patients for pagination.
+     * 
+     * @return Total number of patients
+     * @throws Exception if database operation fails
+     */
+    public int getTotalPatientCount() throws Exception {
+        return patientDAO.getCount();
+    }
+    
+    /**
+     * Gets the count of patients matching a search term.
+     * 
+     * @param name Search term
+     * @return Count of matching patients
+     * @throws Exception if database operation fails
+     */
+    public int getSearchCount(String name) throws Exception {
+        if (name == null || name.trim().isEmpty()) {
+            return patientDAO.getCount();
+        }
+        return patientDAO.getSearchCount(name);
     }
     
     /**

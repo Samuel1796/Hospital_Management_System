@@ -3,25 +3,25 @@
 -- PostgreSQL Database Script
 -- ============================================================================
 
--- Insert sample departments
+-- Insert sample departments (5 main departments)
+-- Run this query to add departments to the database
 INSERT INTO departments (department_name, description, location, phone_number) VALUES
 ('Cardiology', 'Heart and cardiovascular system care', 'Building A, Floor 2', '0302123456'),
 ('Neurology', 'Brain and nervous system disorders', 'Building A, Floor 3', '0302123457'),
 ('Orthopedics', 'Bone, joint, and muscle treatment', 'Building B, Floor 1', '0302123458'),
 ('Pediatrics', 'Medical care for infants and children', 'Building B, Floor 2', '0302123459'),
-('Emergency', 'Emergency medical services', 'Building C, Ground Floor', '0302123460'),
-('General Medicine', 'Primary care and general health', 'Building A, Floor 1', '0302123461');
+('General Medicine', 'Primary care and general health', 'Building A, Floor 1', '0302123460');
 
--- Insert sample doctors
+-- Insert sample doctors (using specializations: Cardiology, Neurology, Orthopedics, Pediatrics, General Medicine)
 INSERT INTO doctors (first_name, last_name, email, phone_number, specialization, department_id, license_number, hire_date, status) VALUES
-('Kwame', 'Mensah', 'kwame.mensah@hospital.com', '0244123456', 'Cardiologist', 1, 'LIC-CARD-001', '2020-01-15', 'Active'),
-('Akosua', 'Asante', 'akosua.asante@hospital.com', '0244123457', 'Neurologist', 2, 'LIC-NEUR-001', '2019-03-20', 'Active'),
-('Kofi', 'Osei', 'kofi.osei@hospital.com', '0244123458', 'Orthopedic Surgeon', 3, 'LIC-ORTH-001', '2018-06-10', 'Active'),
-('Ama', 'Boateng', 'ama.boateng@hospital.com', '0244123459', 'Pediatrician', 4, 'LIC-PED-001', '2021-02-01', 'Active'),
-('Yaw', 'Adjei', 'yaw.adjei@hospital.com', '0244123460', 'Emergency Medicine', 5, 'LIC-EMER-001', '2017-09-15', 'Active'),
-('Efua', 'Darko', 'efua.darko@hospital.com', '0244123461', 'General Practitioner', 6, 'LIC-GEN-001', '2020-11-01', 'Active'),
-('Kojo', 'Appiah', 'kojo.appiah@hospital.com', '0244123462', 'Cardiologist', 1, 'LIC-CARD-002', '2019-08-20', 'Active'),
-('Abena', 'Owusu', 'abena.owusu@hospital.com', '0244123463', 'Neurologist', 2, 'LIC-NEUR-002', '2021-04-10', 'Active');
+('Kwame', 'Mensah', 'kwame.mensah@hospital.com', '0244123456', 'Cardiology', 1, 'LIC-CARD-001', '2020-01-15', 'Active'),
+('Akosua', 'Asante', 'akosua.asante@hospital.com', '0244123457', 'Neurology', 2, 'LIC-NEUR-001', '2019-03-20', 'Active'),
+('Kofi', 'Osei', 'kofi.osei@hospital.com', '0244123458', 'Orthopedics', 3, 'LIC-ORTH-001', '2018-06-10', 'Active'),
+('Ama', 'Boateng', 'ama.boateng@hospital.com', '0244123459', 'Pediatrics', 4, 'LIC-PED-001', '2021-02-01', 'Active'),
+('Yaw', 'Adjei', 'yaw.adjei@hospital.com', '0244123460', 'General Medicine', 5, 'LIC-GEN-001', '2017-09-15', 'Active'),
+('Efua', 'Darko', 'efua.darko@hospital.com', '0244123461', 'General Medicine', 5, 'LIC-GEN-002', '2020-11-01', 'Active'),
+('Kojo', 'Appiah', 'kojo.appiah@hospital.com', '0244123462', 'Cardiology', 1, 'LIC-CARD-002', '2019-08-20', 'Active'),
+('Abena', 'Owusu', 'abena.owusu@hospital.com', '0244123463', 'Neurology', 2, 'LIC-NEUR-002', '2021-04-10', 'Active');
 
 -- Insert sample patients
 INSERT INTO patients (first_name, last_name, email, phone_number, date_of_birth, address, gender, blood_group, emergency_contact, emergency_phone) VALUES

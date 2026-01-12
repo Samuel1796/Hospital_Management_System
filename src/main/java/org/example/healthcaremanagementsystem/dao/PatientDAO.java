@@ -103,5 +103,63 @@ public interface PatientDAO {
      * @throws Exception if database operation fails
      */
     int getCount() throws Exception;
+    
+    /**
+     * Checks if a phone number already exists.
+     * 
+     * @param phoneNumber Phone number to check
+     * @param excludePatientId Patient ID to exclude (for updates)
+     * @return true if phone number exists
+     * @throws Exception if database operation fails
+     */
+    boolean phoneNumberExists(String phoneNumber, Integer excludePatientId) throws Exception;
+    
+    /**
+     * Checks if an email already exists.
+     * 
+     * @param email Email to check
+     * @param excludePatientId Patient ID to exclude (for updates)
+     * @return true if email exists
+     * @throws Exception if database operation fails
+     */
+    boolean emailExists(String email, Integer excludePatientId) throws Exception;
+    
+    /**
+     * Resets the patient sequence to start from the next available ID.
+     * Should be called after deletions to maintain sequential IDs.
+     * 
+     * @throws Exception if database operation fails
+     */
+    void resetSequence() throws Exception;
+    
+    /**
+     * Retrieves patients with pagination.
+     * 
+     * @param page Page number (0-based)
+     * @param pageSize Number of records per page
+     * @return List of patients for the specified page
+     * @throws Exception if database operation fails
+     */
+    List<Patient> findAllPaginated(int page, int pageSize) throws Exception;
+    
+    /**
+     * Searches patients by name with pagination.
+     * 
+     * @param name Search term
+     * @param page Page number (0-based)
+     * @param pageSize Number of records per page
+     * @return List of matching patients for the specified page
+     * @throws Exception if database operation fails
+     */
+    List<Patient> searchByNamePaginated(String name, int page, int pageSize) throws Exception;
+    
+    /**
+     * Gets the count of patients matching a search term.
+     * 
+     * @param name Search term
+     * @return Count of matching patients
+     * @throws Exception if database operation fails
+     */
+    int getSearchCount(String name) throws Exception;
 }
 

@@ -217,6 +217,29 @@ public class AppointmentDAOImpl implements AppointmentDAO {
         return 0;
     }
     
+    @Override
+    public void resetSequence() throws Exception {
+        try (Connection conn = dbConfig.getConnection()) {
+            // Get the max ID or set to 0 if no records exist
+            String getMaxSql = "SELECT COALESCE(MAX(appointment_id), 0) FROM appointments";
+            int maxId = 0;
+            
+            try (PreparedStatement pstmt = conn.prepareStatement(getMaxSql);
+                 ResultSet rs = pstmt.executeQuery()) {
+                if (rs.next()) {
+                    maxId = rs.getInt(1);
+                }
+            }
+            
+            // Reset sequence to max_id + 1 (or 1 if table is empty)
+            String resetSql = "SELECT setval('appointments_appointment_id_seq', ?, false)";
+            try (PreparedStatement pstmt = conn.prepareStatement(resetSql)) {
+                pstmt.setInt(1, maxId + 1);
+                pstmt.execute();
+            }
+        }
+    }
+    
     /**
      * Maps a ResultSet row to an Appointment object.
      * 

@@ -101,5 +101,12 @@ public interface AppointmentDAO {
      * @throws Exception if database operation fails
      */
     int getCountThisMonth() throws Exception;
+    
+    /**
+     * Resets the appointment sequence to start from the next available ID.
+     * 
+     * @throws Exception if database operation fails
+     */
+    void resetSequence() throws Exception;
 }
 
