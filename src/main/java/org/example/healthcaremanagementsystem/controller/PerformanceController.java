@@ -11,6 +11,7 @@ import javafx.scene.control.TableView;
 import javafx.scene.control.cell.PropertyValueFactory;
 import org.example.healthcaremanagementsystem.config.DatabaseConfig;
 import org.example.healthcaremanagementsystem.dao.*;
+import org.example.healthcaremanagementsystem.util.CacheManager;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -61,6 +62,7 @@ public class PerformanceController {
     private final PatientDAO patientDAO;
     private final DoctorDAO doctorDAO;
     private final AppointmentDAO appointmentDAO;
+    private final CacheManager cacheManager;
     
     /**
      * Constructor initializes database connections.
@@ -70,6 +72,7 @@ public class PerformanceController {
         this.patientDAO = new PatientDAOImpl();
         this.doctorDAO = new DoctorDAOImpl();
         this.appointmentDAO = new AppointmentDAOImpl();
+        this.cacheManager = new CacheManager();
     }
     
     /**
@@ -110,8 +113,11 @@ public class PerformanceController {
             int activeDoctors = doctorDAO.getActiveCount();
             lblActiveDoctors.setText(String.valueOf(activeDoctors));
             
-            // Cache hit rate (simulated - in real implementation, track actual cache hits)
-            lblCacheHitRate.setText("85%");
+            // Cache hit rate - calculate average of patient and doctor cache hit rates
+            double patientHitRate = cacheManager.getPatientCacheHitRate();
+            double doctorHitRate = cacheManager.getDoctorCacheHitRate();
+            double avgHitRate = (patientHitRate + doctorHitRate) / 2.0;
+            lblCacheHitRate.setText(String.format("%.1f%%", avgHitRate));
             
         } catch (Exception e) {
             e.printStackTrace();
@@ -213,11 +219,15 @@ public class PerformanceController {
                 calculateImprovement(80, joinQueryTime) + "%"
             ));
             
+            double patientHitRate = cacheManager.getPatientCacheHitRate();
+            double doctorHitRate = cacheManager.getDoctorCacheHitRate();
+            double avgHitRate = (patientHitRate + doctorHitRate) / 2.0;
+            
             metrics.add(new PerformanceMetric(
                 "Cache Hit Rate",
                 "0% (no caching)",
-                "85% (with caching)",
-                "85% improvement"
+                String.format("%.1f%% (with caching)", avgHitRate),
+                String.format("%.1f%% improvement", avgHitRate)
             ));
             
             tableViewMetrics.setItems(metrics);

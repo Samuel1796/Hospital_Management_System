@@ -93,7 +93,7 @@
                                 style="-fx-background-color: #c62828; -fx-text-fill: white; -fx-font-size: 12px; -fx-background-radius: 3; -fx-cursor: hand;"/>
                         <Button fx:id="btnClear" text="Clear" prefWidth="70" prefHeight="32" onAction="#clearForm"
                                 style="-fx-background-color: #ffffff; -fx-text-fill: #546e7a; -fx-font-size: 12px; -fx-border-color: #cfd8dc; -fx-border-radius: 3; -fx-background-radius: 3; -fx-cursor: hand;"/>
-                    </HBox>
+            </HBox>
                 </VBox>
             </ScrollPane>
         </VBox>
@@ -110,7 +110,7 @@
                         style="-fx-background-color: #1e3a5f; -fx-text-fill: white; -fx-font-size: 12px; -fx-padding: 0 16; -fx-background-radius: 3; -fx-cursor: hand;"/>
                 <Button fx:id="btnClearSearch" text="Reset" prefHeight="32" onAction="#clearSearch"
                         style="-fx-background-color: #ffffff; -fx-text-fill: #546e7a; -fx-font-size: 12px; -fx-padding: 0 16; -fx-border-color: #cfd8dc; -fx-border-radius: 3; -fx-background-radius: 3; -fx-cursor: hand;"/>
-            </HBox>
+                </HBox>
             
             <!-- Table -->
             <VBox VBox.vgrow="ALWAYS" style="-fx-background-color: #ffffff; -fx-border-color: #e0e0e0; -fx-border-width: 1; -fx-border-radius: 3; -fx-background-radius: 3;">
@@ -118,15 +118,15 @@
                     <Label text="Doctor Records" style="-fx-font-size: 14px; -fx-font-weight: bold; -fx-text-fill: #263238;"/>
                 </HBox>
                 <TableView fx:id="tableViewDoctors" VBox.vgrow="ALWAYS" style="-fx-background-color: transparent;">
-                    <columns>
-                        <TableColumn fx:id="colDoctorId" text="ID" prefWidth="60"/>
+                <columns>
+                    <TableColumn fx:id="colDoctorId" text="ID" prefWidth="60"/>
                         <TableColumn fx:id="colFirstName" text="First Name" prefWidth="110"/>
                         <TableColumn fx:id="colLastName" text="Last Name" prefWidth="110"/>
                         <TableColumn fx:id="colSpecialization" text="Specialization" prefWidth="140"/>
                         <TableColumn fx:id="colDepartment" text="Department" prefWidth="130"/>
                         <TableColumn fx:id="colStatus" text="Status" prefWidth="90"/>
-                    </columns>
-                </TableView>
+                </columns>
+            </TableView>
             </VBox>
         </VBox>
     </center>

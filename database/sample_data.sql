@@ -2,15 +2,23 @@
 -- Healthcare Management System - Sample Data
 -- PostgreSQL Database Script
 -- ============================================================================
+-- This file contains all sample/test data for the Healthcare Management System
+-- Run this script after running schema.sql to populate the database with sample data
+-- ============================================================================
 
 -- Insert sample departments (5 main departments)
--- Run this query to add departments to the database
+-- These departments correspond to the 5 specialization options:
+-- 1. Cardiology     -> Department: Cardiology
+-- 2. Neurology      -> Department: Neurology  
+-- 3. Orthopedics    -> Department: Orthopedics
+-- 4. Pediatrics     -> Department: Pediatrics
+-- 5. General Medicine -> Department: General Medicine
 INSERT INTO departments (department_name, description, location, phone_number) VALUES
-('Cardiology', 'Heart and cardiovascular system care', 'Building A, Floor 2', '0302123456'),
-('Neurology', 'Brain and nervous system disorders', 'Building A, Floor 3', '0302123457'),
-('Orthopedics', 'Bone, joint, and muscle treatment', 'Building B, Floor 1', '0302123458'),
-('Pediatrics', 'Medical care for infants and children', 'Building B, Floor 2', '0302123459'),
-('General Medicine', 'Primary care and general health', 'Building A, Floor 1', '0302123460');
+('Cardiology', 'Heart and cardiovascular system care - diagnosis and treatment of heart conditions', 'Building A, Floor 2', '0302123456'),
+('Neurology', 'Brain and nervous system disorders - treatment of neurological conditions', 'Building A, Floor 3', '0302123457'),
+('Orthopedics', 'Bone, joint, and muscle treatment - musculoskeletal system care', 'Building B, Floor 1', '0302123458'),
+('Pediatrics', 'Medical care for infants, children, and adolescents', 'Building B, Floor 2', '0302123459'),
+('General Medicine', 'Primary care, general health consultations, and preventive medicine', 'Building A, Floor 1', '0302123460');
 
 -- Insert sample doctors (using specializations: Cardiology, Neurology, Orthopedics, Pediatrics, General Medicine)
 INSERT INTO doctors (first_name, last_name, email, phone_number, specialization, department_id, license_number, hire_date, status) VALUES

@@ -7,6 +7,8 @@ import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.logging.Logger;
+import java.util.logging.Level;
 
 /**
  * Implementation of DoctorDAO interface.
@@ -17,6 +19,7 @@ import java.util.Optional;
  */
 public class DoctorDAOImpl implements DoctorDAO {
     
+    private static final Logger logger = Logger.getLogger(DoctorDAOImpl.class.getName());
     private final DatabaseConfig dbConfig;
     
     /**
@@ -28,6 +31,7 @@ public class DoctorDAOImpl implements DoctorDAO {
     
     @Override
     public Doctor create(Doctor doctor) throws Exception {
+        long startTime = System.currentTimeMillis();
         String sql = "INSERT INTO doctors (first_name, last_name, email, phone_number, " +
                      "specialization, department_id, license_number, hire_date, status) " +
                      "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)";
@@ -55,11 +59,17 @@ public class DoctorDAOImpl implements DoctorDAO {
             try (ResultSet generatedKeys = pstmt.getGeneratedKeys()) {
                 if (generatedKeys.next()) {
                     doctor.setDoctorId(generatedKeys.getInt(1));
+                    long duration = System.currentTimeMillis() - startTime;
+                    logger.info(String.format("[DB] CREATE doctor (ID: %d) - %d ms", doctor.getDoctorId(), duration));
                     return doctor;
                 } else {
                     throw new SQLException("Creating doctor failed, no ID obtained.");
                 }
             }
+        } catch (Exception e) {
+            long duration = System.currentTimeMillis() - startTime;
+            logger.log(Level.SEVERE, String.format("[DB] CREATE doctor FAILED - %d ms - Error: %s", duration, e.getMessage()), e);
+            throw e;
         }
     }
     

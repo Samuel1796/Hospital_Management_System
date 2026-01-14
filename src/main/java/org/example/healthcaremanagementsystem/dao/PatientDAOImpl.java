@@ -7,6 +7,8 @@ import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.logging.Logger;
+import java.util.logging.Level;
 
 /**
  * Implementation of PatientDAO interface.
@@ -15,6 +17,7 @@ import java.util.Optional;
  */
 public class PatientDAOImpl implements PatientDAO {
     
+    private static final Logger logger = Logger.getLogger(PatientDAOImpl.class.getName());
     private final DatabaseConfig dbConfig;
     
     /**
@@ -26,6 +29,7 @@ public class PatientDAOImpl implements PatientDAO {
     
     @Override
     public Patient create(Patient patient) throws Exception {
+        long startTime = System.currentTimeMillis();
         String sql = "INSERT INTO patients (first_name, last_name, email, phone_number, " +
                      "date_of_birth, address, gender, blood_group, emergency_contact, " +
                      "emergency_phone) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
@@ -56,16 +60,23 @@ public class PatientDAOImpl implements PatientDAO {
             try (ResultSet generatedKeys = pstmt.getGeneratedKeys()) {
                 if (generatedKeys.next()) {
                     patient.setPatientId(generatedKeys.getInt(1));
+                    long duration = System.currentTimeMillis() - startTime;
+                    logger.info(String.format("[DB] CREATE patient (ID: %d) - %d ms", patient.getPatientId(), duration));
                     return patient;
                 } else {
                     throw new SQLException("Creating patient failed, no ID obtained.");
                 }
             }
+        } catch (Exception e) {
+            long duration = System.currentTimeMillis() - startTime;
+            logger.log(Level.SEVERE, String.format("[DB] CREATE patient FAILED - %d ms - Error: %s", duration, e.getMessage()), e);
+            throw e;
         }
     }
     
     @Override
     public Optional<Patient> findById(Integer patientId) throws Exception {
+        long startTime = System.currentTimeMillis();
         String sql = "SELECT * FROM patients WHERE patient_id = ?";
         
         try (Connection conn = dbConfig.getConnection();
@@ -75,15 +86,25 @@ public class PatientDAOImpl implements PatientDAO {
             
             try (ResultSet rs = pstmt.executeQuery()) {
                 if (rs.next()) {
-                    return Optional.of(mapResultSetToPatient(rs));
+                    Patient patient = mapResultSetToPatient(rs);
+                    long duration = System.currentTimeMillis() - startTime;
+                    logger.info(String.format("[DB] SELECT patient by ID (ID: %d) - %d ms", patientId, duration));
+                    return Optional.of(patient);
                 }
             }
+        } catch (Exception e) {
+            long duration = System.currentTimeMillis() - startTime;
+            logger.log(Level.SEVERE, String.format("[DB] SELECT patient by ID (ID: %d) FAILED - %d ms - Error: %s", patientId, duration, e.getMessage()), e);
+            throw e;
         }
+        long duration = System.currentTimeMillis() - startTime;
+        logger.info(String.format("[DB] SELECT patient by ID (ID: %d) - NOT FOUND - %d ms", patientId, duration));
         return Optional.empty();
     }
     
     @Override
     public List<Patient> findAll() throws Exception {
+        long startTime = System.currentTimeMillis();
         String sql = "SELECT * FROM patients ORDER BY last_name, first_name";
         List<Patient> patients = new ArrayList<>();
         
@@ -94,6 +115,12 @@ public class PatientDAOImpl implements PatientDAO {
             while (rs.next()) {
                 patients.add(mapResultSetToPatient(rs));
             }
+            long duration = System.currentTimeMillis() - startTime;
+            logger.info(String.format("[DB] SELECT all patients - %d records - %d ms", patients.size(), duration));
+        } catch (Exception e) {
+            long duration = System.currentTimeMillis() - startTime;
+            logger.log(Level.SEVERE, String.format("[DB] SELECT all patients FAILED - %d ms - Error: %s", duration, e.getMessage()), e);
+            throw e;
         }
         return patients;
     }

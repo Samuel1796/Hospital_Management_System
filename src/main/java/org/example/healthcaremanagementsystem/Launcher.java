@@ -5,9 +5,6 @@ import javafx.application.Application;
 /**
  * Launcher class for Healthcare Management System.
  * Alternative entry point for the application.
- * 
-
- * @version 1.0
  */
 public class Launcher {
     /**

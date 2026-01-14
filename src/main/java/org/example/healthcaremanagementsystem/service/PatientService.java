@@ -10,6 +10,8 @@ import org.example.healthcaremanagementsystem.util.SortingUtil;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
+import java.util.logging.Logger;
+import java.util.logging.Level;
 
 /**
  * Service layer for Patient business logic.
@@ -20,6 +22,7 @@ import java.util.stream.Collectors;
  */
 public class PatientService {
     
+    private static final Logger logger = Logger.getLogger(PatientService.class.getName());
     private final PatientDAO patientDAO;
     private final CacheManager cacheManager;
     
@@ -74,17 +77,26 @@ public class PatientService {
      * @throws Exception if database operation fails
      */
     public Optional<Patient> getPatientById(Integer patientId) throws Exception {
+        long startTime = System.currentTimeMillis();
         // Check cache first (hash-based lookup - O(1))
         Object cachedPatient = cacheManager.getPatient(patientId);
         if (cachedPatient != null) {
+            long duration = System.currentTimeMillis() - startTime;
+            logger.info(String.format("[CACHE] HIT - Patient (ID: %d) - %d ms - Hit Rate: %.2f%%", 
+                patientId, duration, cacheManager.getPatientCacheHitRate()));
             return Optional.of((Patient) cachedPatient);
         }
         
-        // If not in cache, query database
+        // Cache miss - query database
+        logger.info(String.format("[CACHE] MISS - Patient (ID: %d)", patientId));
         Optional<Patient> patient = patientDAO.findById(patientId);
         
         // Cache the result for future lookups
-        patient.ifPresent(p -> cacheManager.cachePatient(p.getPatientId(), p));
+        patient.ifPresent(p -> {
+            cacheManager.cachePatient(p.getPatientId(), p);
+            long duration = System.currentTimeMillis() - startTime;
+            logger.info(String.format("[CACHE] STORED - Patient (ID: %d) - Total: %d ms", patientId, duration));
+        });
         
         return patient;
     }
