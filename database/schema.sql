@@ -1,7 +1,6 @@
 -- ============================================================================
 -- Healthcare Management System Database Schema
 -- PostgreSQL Database Script
--- Normalized to Third Normal Form (3NF)
 -- ============================================================================
 
 -- Drop existing tables if they exist (for clean setup)
@@ -17,7 +16,6 @@ DROP TABLE IF EXISTS departments CASCADE;
 -- ============================================================================
 -- Table: departments
 -- Description: Hospital departments (Cardiology, Neurology, etc.)
--- Normalization: 3NF - No transitive dependencies
 -- ============================================================================
 CREATE TABLE departments (
     department_id SERIAL PRIMARY KEY,
@@ -32,17 +30,16 @@ CREATE TABLE departments (
 -- ============================================================================
 -- Table: patients
 -- Description: Patient information and demographics
--- Normalization: 3NF - All attributes depend only on primary key
 -- ============================================================================
 CREATE TABLE patients (
     patient_id SERIAL PRIMARY KEY,
     first_name VARCHAR(100) NOT NULL,
     last_name VARCHAR(100) NOT NULL,
     email VARCHAR(255) NOT NULL UNIQUE,
-    phone_number VARCHAR(20) NOT NULL,
+    phone_number VARCHAR(20) NOT NULL UNIQUE,
     date_of_birth DATE,
     address TEXT,
-    gender VARCHAR(10) CHECK (gender IN ('Male', 'Female', 'Other')),
+    gender VARCHAR(10) CHECK (gender IN ('Male', 'Female')),
     blood_group VARCHAR(5),
     emergency_contact VARCHAR(100),
     emergency_phone VARCHAR(20),
@@ -52,14 +49,13 @@ CREATE TABLE patients (
 -- ============================================================================
 -- Table: doctors
 -- Description: Doctor information and credentials
--- Normalization: 3NF - Foreign key to departments maintains referential integrity
 -- ============================================================================
 CREATE TABLE doctors (
     doctor_id SERIAL PRIMARY KEY,
     first_name VARCHAR(100) NOT NULL,
     last_name VARCHAR(100) NOT NULL,
     email VARCHAR(255) NOT NULL UNIQUE,
-    phone_number VARCHAR(20) NOT NULL,
+    phone_number VARCHAR(20) NOT NULL UNIQUE,
     specialization VARCHAR(100) NOT NULL,
     department_id INTEGER NOT NULL,
     license_number VARCHAR(50) NOT NULL UNIQUE,
@@ -73,7 +69,6 @@ CREATE TABLE doctors (
 -- ============================================================================
 -- Table: appointments
 -- Description: Patient-doctor appointment scheduling
--- Normalization: 3NF - Foreign keys maintain referential integrity
 -- ============================================================================
 CREATE TABLE appointments (
     appointment_id SERIAL PRIMARY KEY,
@@ -95,7 +90,6 @@ CREATE TABLE appointments (
 -- ============================================================================
 -- Table: prescriptions
 -- Description: Prescription records for patients
--- Normalization: 3NF - Links patients, doctors, and appointments
 -- ============================================================================
 CREATE TABLE prescriptions (
     prescription_id SERIAL PRIMARY KEY,
@@ -118,7 +112,6 @@ CREATE TABLE prescriptions (
 -- ============================================================================
 -- Table: prescription_items
 -- Description: Individual medications within a prescription
--- Normalization: 3NF - Composite key with prescription_id
 -- ============================================================================
 CREATE TABLE prescription_items (
     item_id SERIAL PRIMARY KEY,
@@ -137,7 +130,6 @@ CREATE TABLE prescription_items (
 -- ============================================================================
 -- Table: patient_feedback
 -- Description: Patient feedback and ratings
--- Normalization: 3NF - Links patients, doctors, and appointments
 -- ============================================================================
 CREATE TABLE patient_feedback (
     feedback_id SERIAL PRIMARY KEY,
@@ -160,7 +152,6 @@ CREATE TABLE patient_feedback (
 -- ============================================================================
 -- Table: medical_inventory
 -- Description: Medical supplies, medications, and equipment inventory
--- Normalization: 3NF - All attributes depend only on primary key
 -- ============================================================================
 CREATE TABLE medical_inventory (
     inventory_id SERIAL PRIMARY KEY,

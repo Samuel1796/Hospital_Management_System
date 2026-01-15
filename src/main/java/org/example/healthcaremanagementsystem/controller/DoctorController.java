@@ -11,9 +11,6 @@ import org.example.healthcaremanagementsystem.service.DoctorService;
 import org.example.healthcaremanagementsystem.dao.DepartmentDAO;
 import org.example.healthcaremanagementsystem.dao.DepartmentDAOImpl;
 
-import java.time.LocalDate;
-import java.util.List;
-
 /**
  * Controller for Doctor Management module.
  * Handles all doctor-related UI operations including CRUD operations.
@@ -37,7 +34,7 @@ public class DoctorController {
     private TextField txtPhoneNumber;
     
     @FXML
-    private TextField txtSpecialization;
+    private ComboBox<String> comboSpecialization;
     
     @FXML
     private ComboBox<Department> comboDepartment;
@@ -153,7 +150,17 @@ public class DoctorController {
      * Sets up combo boxes with predefined values.
      */
     private void setupComboBoxes() {
+        // Status options
         comboStatus.getItems().addAll("Active", "Inactive", "On Leave");
+        
+        // Specialization options (5 common medical specializations)
+        comboSpecialization.getItems().addAll(
+            "Cardiology",
+            "Neurology",
+            "Orthopedics",
+            "Pediatrics",
+            "General Medicine"
+        );
         
         // Department combo box will be populated from database
         comboDepartment.setCellFactory(listView -> new ListCell<Department>() {
@@ -203,7 +210,6 @@ public class DoctorController {
         txtLastName.setPromptText("Enter last name");
         txtEmail.setPromptText("example@email.com");
         txtPhoneNumber.setPromptText("0244XXXXXX");
-        txtSpecialization.setPromptText("e.g., Cardiologist, Neurologist");
         txtLicenseNumber.setPromptText("LIC-XXXX-XXX");
         txtSearch.setPromptText("Search by name...");
         datePickerHireDate.setPromptText("DD/MM/YYYY");
@@ -290,11 +296,11 @@ public class DoctorController {
         try {
             Doctor doctor = createDoctorFromForm();
             Doctor created = doctorService.createDoctor(doctor);
-            doctorList.add(created);
+            loadAllDoctors(); // Reload to get sequential IDs
             clearForm();
-            showSuccess("Success", "Doctor created successfully!");
+            showSuccess("Success", "Doctor created successfully! (ID: " + created.getDoctorId() + ")");
         } catch (IllegalArgumentException e) {
-            // Catch validation errors from service layer
+            // Catch validation errors from service layer (including duplicates)
             showError("Validation Error", e.getMessage());
         } catch (Exception e) {
             showError("Error", "Failed to create doctor: " + e.getMessage());
@@ -322,13 +328,12 @@ public class DoctorController {
             doctor.setDoctorId(selectedDoctor.getDoctorId());
             
             if (doctorService.updateDoctor(doctor)) {
-                int index = doctorList.indexOf(selectedDoctor);
-                doctorList.set(index, doctor);
+                loadAllDoctors(); // Reload to refresh the table
                 clearForm();
                 showSuccess("Success", "Doctor updated successfully!");
             }
         } catch (IllegalArgumentException e) {
-            // Catch validation errors from service layer
+            // Catch validation errors from service layer (including duplicates)
             showError("Validation Error", e.getMessage());
         } catch (Exception e) {
             showError("Error", "Failed to update doctor: " + e.getMessage());
@@ -348,12 +353,12 @@ public class DoctorController {
         Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
         alert.setTitle("Confirm Delete");
         alert.setHeaderText("Delete Doctor");
-        alert.setContentText("Are you sure you want to delete this doctor?");
+        alert.setContentText("Are you sure you want to delete this doctor? This action cannot be undone.");
         
         if (alert.showAndWait().orElse(ButtonType.CANCEL) == ButtonType.OK) {
             try {
                 if (doctorService.deleteDoctor(selectedDoctor.getDoctorId())) {
-                    doctorList.remove(selectedDoctor);
+                    loadAllDoctors(); // Reload to refresh IDs
                     clearForm();
                     showSuccess("Success", "Doctor deleted successfully!");
                 }
@@ -433,9 +438,9 @@ public class DoctorController {
             return false;
         }
         
-        if (txtSpecialization.getText().trim().isEmpty()) {
+        if (comboSpecialization.getValue() == null) {
             showError("Validation Error", "Specialization is required.");
-            txtSpecialization.requestFocus();
+            comboSpecialization.requestFocus();
             return false;
         }
         
@@ -494,7 +499,7 @@ public class DoctorController {
         doctor.setLastName(txtLastName.getText().trim());
         doctor.setEmail(txtEmail.getText().trim());
         doctor.setPhoneNumber(txtPhoneNumber.getText().trim());
-        doctor.setSpecialization(txtSpecialization.getText().trim());
+        doctor.setSpecialization(comboSpecialization.getValue());
         doctor.setDepartmentId(comboDepartment.getValue().getDepartmentId());
         doctor.setLicenseNumber(txtLicenseNumber.getText().trim());
         doctor.setHireDate(datePickerHireDate.getValue());
@@ -512,7 +517,7 @@ public class DoctorController {
         txtLastName.setText(doctor.getLastName());
         txtEmail.setText(doctor.getEmail());
         txtPhoneNumber.setText(doctor.getPhoneNumber());
-        txtSpecialization.setText(doctor.getSpecialization());
+        comboSpecialization.setValue(doctor.getSpecialization());
         txtLicenseNumber.setText(doctor.getLicenseNumber());
         datePickerHireDate.setValue(doctor.getHireDate());
         comboStatus.setValue(doctor.getStatus());
@@ -533,7 +538,7 @@ public class DoctorController {
         txtLastName.clear();
         txtEmail.clear();
         txtPhoneNumber.clear();
-        txtSpecialization.clear();
+        comboSpecialization.setValue(null);
         txtLicenseNumber.clear();
         datePickerHireDate.setValue(null);
         comboDepartment.setValue(null);

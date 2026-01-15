@@ -12,114 +12,153 @@ import java.time.LocalDate;
 
 /**
  * Controller for Patient Management module.
- * Handles all patient-related UI operations including CRUD operations.
- * Follows MVC pattern by separating view logic from business logic.
- * 
- * @author Healthcare Management System Team
- * @version 1.0
+ * Handles all patient-related UI operations including CRUD operations with pagination.
  */
 public class PatientController {
     
-    @FXML
-    private TextField txtFirstName;
+    // Form fields
+    @FXML private TextField txtFirstName;
+    @FXML private TextField txtLastName;
+    @FXML private TextField txtEmail;
+    @FXML private TextField txtPhoneNumber;
+    @FXML private DatePicker datePickerDateOfBirth;
+    @FXML private TextArea txtAddress;
+    @FXML private ComboBox<String> comboGender;
+    @FXML private ComboBox<String> comboBloodGroup;
+    @FXML private TextField txtEmergencyContact;
+    @FXML private TextField txtEmergencyPhone;
+    @FXML private TextField txtSearch;
     
-    @FXML
-    private TextField txtLastName;
+    // Table components
+    @FXML private TableView<Patient> tableViewPatients;
+    @FXML private TableColumn<Patient, Integer> colPatientId;
+    @FXML private TableColumn<Patient, String> colFirstName;
+    @FXML private TableColumn<Patient, String> colLastName;
+    @FXML private TableColumn<Patient, String> colEmail;
+    @FXML private TableColumn<Patient, String> colPhone;
     
-    @FXML
-    private TextField txtEmail;
+    // Buttons
+    @FXML private Button btnCreate;
+    @FXML private Button btnUpdate;
+    @FXML private Button btnDelete;
+    @FXML private Button btnSearch;
+    @FXML private Button btnClear;
+    @FXML private Button btnClearSearch;
     
-    @FXML
-    private TextField txtPhoneNumber;
-    
-    @FXML
-    private DatePicker datePickerDateOfBirth;
-    
-    @FXML
-    private TextArea txtAddress;
-    
-    @FXML
-    private ComboBox<String> comboGender;
-    
-    @FXML
-    private ComboBox<String> comboBloodGroup;
-    
-    @FXML
-    private TextField txtEmergencyContact;
-    
-    @FXML
-    private TextField txtEmergencyPhone;
-    
-    @FXML
-    private TextField txtSearch;
-    
-    @FXML
-    private TableView<Patient> tableViewPatients;
-    
-    @FXML
-    private TableColumn<Patient, Integer> colPatientId;
-    
-    @FXML
-    private TableColumn<Patient, String> colFirstName;
-    
-    @FXML
-    private TableColumn<Patient, String> colLastName;
-    
-    @FXML
-    private TableColumn<Patient, String> colEmail;
-    
-    @FXML
-    private TableColumn<Patient, String> colPhone;
-    
-    @FXML
-    private Button btnCreate;
-    
-    @FXML
-    private Button btnUpdate;
-    
-    @FXML
-    private Button btnDelete;
-    
-    @FXML
-    private Button btnSearch;
-    
-    @FXML
-    private Button btnClear;
-    
-    @FXML
-    private Button btnClearSearch;
+    // Pagination components
+    @FXML private Button btnFirstPage;
+    @FXML private Button btnPrevPage;
+    @FXML private Button btnNextPage;
+    @FXML private Button btnLastPage;
+    @FXML private Label lblPageInfo;
+    @FXML private Label lblRecordInfo;
+    @FXML private ComboBox<Integer> comboPageSize;
     
     private final PatientService patientService;
     private final ObservableList<Patient> patientList;
     private Patient selectedPatient;
     
-    /**
-     * Constructor initializes service and observable list.
-     */
+    // Pagination state
+    private int currentPage = 0;
+    private int pageSize = 10;
+    private int totalRecords = 0;
+    private int totalPages = 0;
+    private String currentSearchTerm = "";
+    
     public PatientController() {
         this.patientService = new PatientService();
         this.patientList = FXCollections.observableArrayList();
     }
     
-    /**
-     * Initializes the controller and sets up UI components.
-     */
     @FXML
     private void initialize() {
         setupTableColumns();
         setupComboBoxes();
+        setupPaginationComboBox();
         setupValidation();
         setupPlaceholders();
-        loadAllPatients();
         setupTableSelection();
         setupButtonActions();
+        loadPatientsPaginated();
     }
     
-    /**
-     * Sets up input validation for email and phone number fields.
-     */
+    private void setupPaginationComboBox() {
+        comboPageSize.getItems().addAll(5, 10, 20, 50, 100);
+        comboPageSize.setValue(10);
+    }
+    
+    @FXML
+    private void changePageSize() {
+        if (comboPageSize.getValue() != null) {
+            pageSize = comboPageSize.getValue();
+            currentPage = 0; // Reset to first page
+            loadPatientsPaginated();
+        }
+    }
+    
+    @FXML
+    private void goToFirstPage() {
+        if (currentPage > 0) {
+            currentPage = 0;
+            loadPatientsPaginated();
+        }
+    }
+    
+    @FXML
+    private void goToPreviousPage() {
+        if (currentPage > 0) {
+            currentPage--;
+            loadPatientsPaginated();
+        }
+    }
+    
+    @FXML
+    private void goToNextPage() {
+        if (currentPage < totalPages - 1) {
+            currentPage++;
+            loadPatientsPaginated();
+        }
+    }
+    
+    @FXML
+    private void goToLastPage() {
+        if (currentPage < totalPages - 1) {
+            currentPage = totalPages - 1;
+            loadPatientsPaginated();
+        }
+    }
+    
+    private void updatePaginationControls() {
+        totalPages = (int) Math.ceil((double) totalRecords / pageSize);
+        if (totalPages == 0) totalPages = 1;
+        
+        lblPageInfo.setText("Page " + (currentPage + 1) + " of " + totalPages);
+        lblRecordInfo.setText(totalRecords + " records");
+        
+        btnFirstPage.setDisable(currentPage == 0);
+        btnPrevPage.setDisable(currentPage == 0);
+        btnNextPage.setDisable(currentPage >= totalPages - 1);
+        btnLastPage.setDisable(currentPage >= totalPages - 1);
+    }
+    
+    private void loadPatientsPaginated() {
+        try {
+            if (currentSearchTerm.isEmpty()) {
+                totalRecords = patientService.getTotalPatientCount();
+                patientList.clear();
+                patientList.addAll(patientService.getPatientsPaginated(currentPage, pageSize));
+            } else {
+                totalRecords = patientService.getSearchCount(currentSearchTerm);
+                patientList.clear();
+                patientList.addAll(patientService.searchPatientsPaginated(currentSearchTerm, currentPage, pageSize));
+            }
+            updatePaginationControls();
+        } catch (Exception e) {
+            showError("Error", "Failed to load patients: " + e.getMessage());
+        }
+    }
+    
     private void setupValidation() {
-        // Email validation
         txtEmail.textProperty().addListener((observable, oldValue, newValue) -> {
             if (newValue != null && !newValue.isEmpty() && !isValidEmail(newValue)) {
                 txtEmail.setStyle("-fx-border-color: #e74c3c; -fx-border-width: 2px;");
@@ -128,7 +167,6 @@ public class PatientController {
             }
         });
         
-        // Phone number validation (Ghanaian format: 0244XXXXXX or 020XXXXXXX)
         txtPhoneNumber.textProperty().addListener((observable, oldValue, newValue) -> {
             if (newValue != null && !newValue.isEmpty() && !isValidPhoneNumber(newValue)) {
                 txtPhoneNumber.setStyle("-fx-border-color: #e74c3c; -fx-border-width: 2px;");
@@ -137,7 +175,6 @@ public class PatientController {
             }
         });
         
-        // Emergency phone validation
         txtEmergencyPhone.textProperty().addListener((observable, oldValue, newValue) -> {
             if (newValue != null && !newValue.isEmpty() && !isValidPhoneNumber(newValue)) {
                 txtEmergencyPhone.setStyle("-fx-border-color: #e74c3c; -fx-border-width: 2px;");
@@ -147,9 +184,6 @@ public class PatientController {
         });
     }
     
-    /**
-     * Sets up placeholders for input fields.
-     */
     private void setupPlaceholders() {
         txtFirstName.setPromptText("Enter first name");
         txtLastName.setPromptText("Enter last name");
@@ -159,62 +193,34 @@ public class PatientController {
         txtAddress.setPromptText("Enter full address");
         txtEmergencyContact.setPromptText("Emergency contact name");
         txtSearch.setPromptText("Search by name...");
-        
-        // Set date picker prompt text via CSS or JavaFX properties
         datePickerDateOfBirth.setPromptText("DD/MM/YYYY");
     }
     
-    /**
-     * Validates email format.
-     * 
-     * @param email Email address to validate
-     * @return true if valid email format
-     */
     private boolean isValidEmail(String email) {
         String emailRegex = "^[a-zA-Z0-9_+&*-]+(?:\\.[a-zA-Z0-9_+&*-]+)*@(?:[a-zA-Z0-9-]+\\.)+[a-zA-Z]{2,7}$";
         return email.matches(emailRegex);
     }
     
-    /**
-     * Validates Ghanaian phone number format.
-     * Accepts formats: 0244XXXXXX, 020XXXXXXX, 050XXXXXXX, etc.
-     * 
-     * @param phone Phone number to validate
-     * @return true if valid phone format
-     */
     private boolean isValidPhoneNumber(String phone) {
-        // Remove spaces and dashes
         String cleaned = phone.replaceAll("[\\s-]", "");
-        // Ghanaian mobile numbers: 0244XXXXXX, 020XXXXXXX, 050XXXXXXX, etc.
-        // Landline: 0302XXXXXX
         String phoneRegex = "^(0[2-5]\\d{8}|030\\d{7})$";
         return cleaned.matches(phoneRegex);
     }
     
-    /**
-     * Sets up table column bindings.
-     */
     private void setupTableColumns() {
         colPatientId.setCellValueFactory(new PropertyValueFactory<>("patientId"));
         colFirstName.setCellValueFactory(new PropertyValueFactory<>("firstName"));
         colLastName.setCellValueFactory(new PropertyValueFactory<>("lastName"));
         colEmail.setCellValueFactory(new PropertyValueFactory<>("email"));
         colPhone.setCellValueFactory(new PropertyValueFactory<>("phoneNumber"));
-        
         tableViewPatients.setItems(patientList);
     }
     
-    /**
-     * Sets up combo boxes with predefined values.
-     */
     private void setupComboBoxes() {
         comboGender.getItems().addAll("Male", "Female", "Other");
         comboBloodGroup.getItems().addAll("A+", "A-", "B+", "B-", "AB+", "AB-", "O+", "O-");
     }
     
-    /**
-     * Sets up table row selection handler.
-     */
     private void setupTableSelection() {
         tableViewPatients.getSelectionModel().selectedItemProperty().addListener(
             (observable, oldValue, newValue) -> {
@@ -229,9 +235,6 @@ public class PatientController {
         );
     }
     
-    /**
-     * Sets up button event handlers.
-     */
     private void setupButtonActions() {
         btnCreate.setOnAction(e -> createPatient());
         btnUpdate.setOnAction(e -> updatePatient());
@@ -243,33 +246,16 @@ public class PatientController {
         }
     }
     
-    /**
-     * Clears search and displays all patients.
-     */
     @FXML
     private void clearSearch() {
         txtSearch.clear();
-        loadAllPatients();
+        currentSearchTerm = "";
+        currentPage = 0;
+        loadPatientsPaginated();
     }
     
-    /**
-     * Loads all patients from the database.
-     */
-    private void loadAllPatients() {
-        try {
-            patientList.clear();
-            patientList.addAll(patientService.getAllPatients());
-        } catch (Exception e) {
-            showError("Error", "Failed to load patients: " + e.getMessage());
-        }
-    }
-    
-    /**
-     * Creates a new patient record with validation.
-     */
     @FXML
     private void createPatient() {
-        // Validate form fields
         if (!validateForm()) {
             return;
         }
@@ -277,22 +263,19 @@ public class PatientController {
         try {
             Patient patient = createPatientFromForm();
             Patient created = patientService.createPatient(patient);
-            patientList.add(created);
+            currentPage = 0; // Go to first page to see new record
+            currentSearchTerm = "";
+            txtSearch.clear();
+            loadPatientsPaginated();
             clearForm();
-            showSuccess("Success", "Patient created successfully!");
+            showSuccess("Success", "Patient created successfully! (ID: " + created.getPatientId() + ")");
         } catch (IllegalArgumentException e) {
-            // Catch validation errors from service layer - prevents invalid data from being saved
             showError("Validation Error", e.getMessage());
         } catch (Exception e) {
             showError("Error", "Failed to create patient: " + e.getMessage());
         }
     }
     
-    /**
-     * Validates all form fields before submission.
-     * 
-     * @return true if all fields are valid
-     */
     private boolean validateForm() {
         if (txtFirstName.getText().trim().isEmpty()) {
             showError("Validation Error", "First name is required.");
@@ -345,10 +328,6 @@ public class PatientController {
         return true;
     }
     
-    /**
-     * Updates an existing patient record with strict validation.
-     * Prevents invalid data from being saved to database.
-     */
     @FXML
     private void updatePatient() {
         if (selectedPatient == null) {
@@ -356,9 +335,8 @@ public class PatientController {
             return;
         }
         
-        // Validate form before attempting to update
         if (!validateForm()) {
-            return; // Stop here - do not proceed with database operation
+            return;
         }
         
         try {
@@ -366,22 +344,17 @@ public class PatientController {
             patient.setPatientId(selectedPatient.getPatientId());
             
             if (patientService.updatePatient(patient)) {
-                int index = patientList.indexOf(selectedPatient);
-                patientList.set(index, patient);
+                loadPatientsPaginated();
                 clearForm();
                 showSuccess("Success", "Patient updated successfully!");
             }
         } catch (IllegalArgumentException e) {
-            // Catch validation errors from service layer
             showError("Validation Error", e.getMessage());
         } catch (Exception e) {
             showError("Error", "Failed to update patient: " + e.getMessage());
         }
     }
     
-    /**
-     * Deletes the selected patient record.
-     */
     @FXML
     private void deletePatient() {
         if (selectedPatient == null) {
@@ -392,12 +365,12 @@ public class PatientController {
         Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
         alert.setTitle("Confirm Delete");
         alert.setHeaderText("Delete Patient");
-        alert.setContentText("Are you sure you want to delete this patient?");
+        alert.setContentText("Are you sure you want to delete this patient? This action cannot be undone.");
         
         if (alert.showAndWait().orElse(ButtonType.CANCEL) == ButtonType.OK) {
             try {
                 if (patientService.deletePatient(selectedPatient.getPatientId())) {
-                    patientList.remove(selectedPatient);
+                    loadPatientsPaginated();
                     clearForm();
                     showSuccess("Success", "Patient deleted successfully!");
                 }
@@ -407,30 +380,13 @@ public class PatientController {
         }
     }
     
-    /**
-     * Searches for patients by name.
-     */
     @FXML
     private void searchPatients() {
-        String searchTerm = txtSearch.getText().trim();
-        
-        try {
-            patientList.clear();
-            if (searchTerm.isEmpty()) {
-                patientList.addAll(patientService.getAllPatients());
-            } else {
-                patientList.addAll(patientService.searchPatientsByName(searchTerm));
-            }
-        } catch (Exception e) {
-            showError("Error", "Failed to search patients: " + e.getMessage());
-        }
+        currentSearchTerm = txtSearch.getText().trim();
+        currentPage = 0; // Reset to first page when searching
+        loadPatientsPaginated();
     }
     
-    /**
-     * Creates a Patient object from form fields.
-     * 
-     * @return Patient object with form data
-     */
     private Patient createPatientFromForm() {
         Patient patient = new Patient();
         patient.setFirstName(txtFirstName.getText().trim());
@@ -446,11 +402,6 @@ public class PatientController {
         return patient;
     }
     
-    /**
-     * Populates form fields with patient data.
-     * 
-     * @param patient Patient object to populate from
-     */
     private void populateForm(Patient patient) {
         txtFirstName.setText(patient.getFirstName());
         txtLastName.setText(patient.getLastName());
@@ -464,9 +415,6 @@ public class PatientController {
         txtEmergencyPhone.setText(patient.getEmergencyPhone());
     }
     
-    /**
-     * Clears all form fields and resets selection.
-     */
     @FXML
     private void clearForm() {
         txtFirstName.clear();
@@ -479,7 +427,6 @@ public class PatientController {
         comboBloodGroup.setValue(null);
         txtEmergencyContact.clear();
         txtEmergencyPhone.clear();
-        txtSearch.clear();
         
         tableViewPatients.getSelectionModel().clearSelection();
         selectedPatient = null;
@@ -488,12 +435,6 @@ public class PatientController {
         btnDelete.setDisable(true);
     }
     
-    /**
-     * Shows a success alert dialog.
-     * 
-     * @param title Alert title
-     * @param message Alert message
-     */
     private void showSuccess(String title, String message) {
         Alert alert = new Alert(Alert.AlertType.INFORMATION);
         alert.setTitle(title);
@@ -502,12 +443,6 @@ public class PatientController {
         alert.showAndWait();
     }
     
-    /**
-     * Shows an error alert dialog.
-     * 
-     * @param title Alert title
-     * @param message Alert message
-     */
     private void showError(String title, String message) {
         Alert alert = new Alert(Alert.AlertType.ERROR);
         alert.setTitle(title);
@@ -516,4 +451,3 @@ public class PatientController {
         alert.showAndWait();
     }
 }
-

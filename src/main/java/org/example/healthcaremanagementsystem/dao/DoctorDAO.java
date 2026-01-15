@@ -99,5 +99,42 @@ public interface DoctorDAO {
      * @throws Exception if database operation fails
      */
     int getActiveCount() throws Exception;
+    
+    /**
+     * Checks if an email already exists.
+     * 
+     * @param email Email to check
+     * @param excludeDoctorId Doctor ID to exclude (for updates)
+     * @return true if email exists
+     * @throws Exception if database operation fails
+     */
+    boolean emailExists(String email, Integer excludeDoctorId) throws Exception;
+    
+    /**
+     * Checks if a license number already exists.
+     * 
+     * @param licenseNumber License number to check
+     * @param excludeDoctorId Doctor ID to exclude (for updates)
+     * @return true if license number exists
+     * @throws Exception if database operation fails
+     */
+    boolean licenseNumberExists(String licenseNumber, Integer excludeDoctorId) throws Exception;
+    
+    /**
+     * Checks if a phone number already exists.
+     * 
+     * @param phoneNumber Phone number to check
+     * @param excludeDoctorId Doctor ID to exclude (for updates)
+     * @return true if phone number exists
+     * @throws Exception if database operation fails
+     */
+    boolean phoneNumberExists(String phoneNumber, Integer excludeDoctorId) throws Exception;
+    
+    /**
+     * Resets the doctor sequence to start from the next available ID.
+     * 
+     * @throws Exception if database operation fails
+     */
+    void resetSequence() throws Exception;
 }
 

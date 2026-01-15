@@ -38,8 +38,8 @@ public class HealthcareApplication extends Application {
     
     @Override
     public void stop() throws Exception {
-        // Close database connection when application closes
-        DatabaseConfig.getInstance().closeConnection();
+        // Connections are now managed per-request with try-with-resources
+        // No need to explicitly close a shared connection
         super.stop();
     }
     
