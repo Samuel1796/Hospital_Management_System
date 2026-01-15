@@ -3,19 +3,13 @@ package org.example.healthcaremanagementsystem.controller;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
-import javafx.fxml.FXMLLoader;
-import javafx.scene.Parent;
-import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.control.cell.PropertyValueFactory;
-import javafx.stage.Stage;
 import org.example.healthcaremanagementsystem.model.Doctor;
 import org.example.healthcaremanagementsystem.model.Department;
 import org.example.healthcaremanagementsystem.service.DoctorService;
 import org.example.healthcaremanagementsystem.dao.DepartmentDAO;
 import org.example.healthcaremanagementsystem.dao.DepartmentDAOImpl;
-
-import java.io.IOException;
 
 /**
  * Controller for Doctor Management module.
@@ -29,78 +23,81 @@ public class DoctorController {
 
     @FXML
     private TextField txtFirstName;
-
     @FXML
     private TextField txtLastName;
-
     @FXML
     private TextField txtEmail;
-
     @FXML
     private TextField txtPhoneNumber;
-
     @FXML
     private ComboBox<String> comboSpecialization;
-
     @FXML
     private ComboBox<Department> comboDepartment;
-
     @FXML
     private TextField txtLicenseNumber;
-
     @FXML
     private DatePicker datePickerHireDate;
-
     @FXML
     private ComboBox<String> comboStatus;
-
     @FXML
     private TextField txtSearch;
 
     @FXML
     private TableView<Doctor> tableViewDoctors;
-
     @FXML
     private TableColumn<Doctor, Integer> colDoctorId;
-
     @FXML
     private TableColumn<Doctor, String> colFirstName;
-
     @FXML
     private TableColumn<Doctor, String> colLastName;
-
     @FXML
     private TableColumn<Doctor, String> colSpecialization;
-
     @FXML
     private TableColumn<Doctor, String> colDepartment;
-
     @FXML
     private TableColumn<Doctor, String> colStatus;
 
     @FXML
     private Button btnCreate;
-
     @FXML
     private Button btnUpdate;
-
     @FXML
     private Button btnDelete;
-
     @FXML
     private Button btnSearch;
-
     @FXML
     private Button btnClear;
-
     @FXML
     private Button btnClearSearch;
+
+    // Pagination Controls
+    @FXML
+    private Button btnFirstPage;
+    @FXML
+    private Button btnPrevPage;
+    @FXML
+    private Button btnNextPage;
+    @FXML
+    private Button btnLastPage;
+    @FXML
+    private Label lblPageInfo;
+    @FXML
+    private Label lblRecordInfo;
+    @FXML
+    private ComboBox<Integer> comboPageSize;
 
     private final DoctorService doctorService;
     private final DepartmentDAO departmentDAO;
     private final ObservableList<Doctor> doctorList;
     private final ObservableList<Department> departmentList;
     private Doctor selectedDoctor;
+
+    // Pagination state
+    private int currentPage = 0;
+    private int pageSize = 10;
+    private int totalRecords = 0;
+    private int totalPages = 0;
+    private String currentSearchTerm = "";
 
     /**
      * Constructor initializes services and observable lists.
@@ -119,12 +116,90 @@ public class DoctorController {
     private void initialize() {
         setupTableColumns();
         setupComboBoxes();
+        setupPaginationComboBox();
         setupValidation();
         setupPlaceholders();
         loadDepartments();
-        loadAllDoctors();
+        loadDoctorsPaginated();
         setupTableSelection();
         setupButtonActions();
+    }
+
+    private void setupPaginationComboBox() {
+        comboPageSize.getItems().addAll(5, 10, 20, 50, 100);
+        comboPageSize.setValue(10);
+    }
+
+    @FXML
+    private void changePageSize() {
+        if (comboPageSize.getValue() != null) {
+            pageSize = comboPageSize.getValue();
+            currentPage = 0; // Reset to first page
+            loadDoctorsPaginated();
+        }
+    }
+
+    @FXML
+    private void goToFirstPage() {
+        if (currentPage > 0) {
+            currentPage = 0;
+            loadDoctorsPaginated();
+        }
+    }
+
+    @FXML
+    private void goToPreviousPage() {
+        if (currentPage > 0) {
+            currentPage--;
+            loadDoctorsPaginated();
+        }
+    }
+
+    @FXML
+    private void goToNextPage() {
+        if (currentPage < totalPages - 1) {
+            currentPage++;
+            loadDoctorsPaginated();
+        }
+    }
+
+    @FXML
+    private void goToLastPage() {
+        if (currentPage < totalPages - 1) {
+            currentPage = totalPages - 1;
+            loadDoctorsPaginated();
+        }
+    }
+
+    private void updatePaginationControls() {
+        totalPages = (int) Math.ceil((double) totalRecords / pageSize);
+        if (totalPages == 0)
+            totalPages = 1;
+
+        lblPageInfo.setText("Page " + (currentPage + 1) + " of " + totalPages);
+        lblRecordInfo.setText(totalRecords + " records");
+
+        btnFirstPage.setDisable(currentPage == 0);
+        btnPrevPage.setDisable(currentPage == 0);
+        btnNextPage.setDisable(currentPage >= totalPages - 1);
+        btnLastPage.setDisable(currentPage >= totalPages - 1);
+    }
+
+    private void loadDoctorsPaginated() {
+        try {
+            if (currentSearchTerm.isEmpty()) {
+                totalRecords = doctorService.getTotalDoctorCount();
+                doctorList.clear();
+                doctorList.addAll(doctorService.getDoctorsPaginated(currentPage, pageSize));
+            } else {
+                totalRecords = doctorService.getSearchCount(currentSearchTerm);
+                doctorList.clear();
+                doctorList.addAll(doctorService.searchDoctorsPaginated(currentSearchTerm, currentPage, pageSize));
+            }
+            updatePaginationControls();
+        } catch (Exception e) {
+            showError("Error", "Failed to load doctors: " + e.getMessage());
+        }
     }
 
     /**
@@ -272,19 +347,6 @@ public class DoctorController {
         btnSearch.setOnAction(e -> searchDoctors());
         btnClear.setOnAction(e -> clearForm());
         btnClearSearch.setOnAction(e -> clearSearch());
-        btnClearSearch.setOnAction(e -> clearSearch());
-    }
-
-    /**
-     * Loads all doctors from the database.
-     */
-    private void loadAllDoctors() {
-        try {
-            doctorList.clear();
-            doctorList.addAll(doctorService.getAllDoctors());
-        } catch (Exception e) {
-            showError("Error", "Failed to load doctors: " + e.getMessage());
-        }
     }
 
     /**
@@ -303,7 +365,10 @@ public class DoctorController {
             Doctor created = doctorService.createDoctor(doctor);
             org.example.healthcaremanagementsystem.util.SystemLogger.getInstance().log("DOCTOR",
                     "Created new doctor: " + created.getFirstName() + " " + created.getLastName());
-            loadAllDoctors(); // Reload to get sequential IDs
+            currentPage = 0; // Go to first page
+            currentSearchTerm = "";
+            txtSearch.clear();
+            loadDoctorsPaginated(); // Reload to get sequential IDs
             clearForm();
             showSuccess("Success", "Doctor created successfully! (ID: " + created.getDoctorId() + ")");
         } catch (IllegalArgumentException e) {
@@ -337,7 +402,7 @@ public class DoctorController {
             if (doctorService.updateDoctor(doctor)) {
                 org.example.healthcaremanagementsystem.util.SystemLogger.getInstance().log("DOCTOR",
                         "Updated doctor ID: " + doctor.getDoctorId());
-                loadAllDoctors(); // Reload to refresh the table
+                loadDoctorsPaginated(); // Reload to refresh the table
                 clearForm();
                 showSuccess("Success", "Doctor updated successfully!");
             }
@@ -369,7 +434,7 @@ public class DoctorController {
                 if (doctorService.deleteDoctor(selectedDoctor.getDoctorId())) {
                     org.example.healthcaremanagementsystem.util.SystemLogger.getInstance().log("DOCTOR",
                             "Deleted doctor ID: " + selectedDoctor.getDoctorId());
-                    loadAllDoctors(); // Reload to refresh IDs
+                    loadDoctorsPaginated(); // Reload to refresh IDs
                     clearForm();
                     showSuccess("Success", "Doctor deleted successfully!");
                 }
@@ -384,18 +449,9 @@ public class DoctorController {
      */
     @FXML
     private void searchDoctors() {
-        String searchTerm = txtSearch.getText().trim();
-
-        try {
-            doctorList.clear();
-            if (searchTerm.isEmpty()) {
-                doctorList.addAll(doctorService.getAllDoctors());
-            } else {
-                doctorList.addAll(doctorService.searchDoctorsByName(searchTerm));
-            }
-        } catch (Exception e) {
-            showError("Error", "Failed to search doctors: " + e.getMessage());
-        }
+        currentSearchTerm = txtSearch.getText().trim();
+        currentPage = 0;
+        loadDoctorsPaginated();
     }
 
     /**
@@ -404,7 +460,9 @@ public class DoctorController {
     @FXML
     private void clearSearch() {
         txtSearch.clear();
-        loadAllDoctors();
+        currentSearchTerm = "";
+        currentPage = 0;
+        loadDoctorsPaginated();
     }
 
     /**

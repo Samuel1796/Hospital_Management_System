@@ -52,6 +52,13 @@
                         onAction="#openInventory"/>
                 
                 <Separator style="-fx-background-color: #37474f; -fx-padding: 4 0; -fx-opacity: 0.5;"/>
+
+                <!-- Clinical Section -->
+                <Label text="CLINICAL" style="-fx-text-fill: #607d8b; -fx-font-size: 10px; -fx-font-weight: bold; -fx-padding: 8 8 4 8;"/>
+
+                <Button fx:id="btnConsultation" text="Consultations" 
+                        prefWidth="216" prefHeight="36" styleClass="sidebar-button"
+                        onAction="#openConsultationDashboard"/>
                 
                 <!-- History Section -->
                 <Label text="HISTORY" style="-fx-text-fill: #607d8b; -fx-font-size: 10px; -fx-font-weight: bold; -fx-padding: 8 8 4 8;"/>

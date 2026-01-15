@@ -6,22 +6,24 @@ import java.util.Optional;
 
 /**
  * Data Access Object interface for Doctor entity.
- * Follows Interface Segregation Principle by defining only doctor-related operations.
+ * Follows Interface Segregation Principle by defining only doctor-related
+ * operations.
  * 
  * @author Healthcare Management System Team
  * @version 1.0
  */
 public interface DoctorDAO {
-    
+
     /**
      * Creates a new doctor record in the database.
      * 
      * @param doctor Doctor object containing doctor information
-     * @return The created Doctor object with generated ID, or null if creation failed
+     * @return The created Doctor object with generated ID, or null if creation
+     *         failed
      * @throws Exception if database operation fails
      */
     Doctor create(Doctor doctor) throws Exception;
-    
+
     /**
      * Retrieves a doctor by their unique identifier.
      * 
@@ -30,7 +32,7 @@ public interface DoctorDAO {
      * @throws Exception if database operation fails
      */
     Optional<Doctor> findById(Integer doctorId) throws Exception;
-    
+
     /**
      * Retrieves all doctors from the database.
      * 
@@ -38,7 +40,7 @@ public interface DoctorDAO {
      * @throws Exception if database operation fails
      */
     List<Doctor> findAll() throws Exception;
-    
+
     /**
      * Updates an existing doctor record.
      * 
@@ -47,7 +49,7 @@ public interface DoctorDAO {
      * @throws Exception if database operation fails
      */
     boolean update(Doctor doctor) throws Exception;
-    
+
     /**
      * Deletes a doctor record by ID.
      * 
@@ -56,7 +58,7 @@ public interface DoctorDAO {
      * @throws Exception if database operation fails
      */
     boolean delete(Integer doctorId) throws Exception;
-    
+
     /**
      * Finds doctors by department ID.
      * 
@@ -65,7 +67,7 @@ public interface DoctorDAO {
      * @throws Exception if database operation fails
      */
     List<Doctor> findByDepartment(Integer departmentId) throws Exception;
-    
+
     /**
      * Finds doctors by specialization.
      * 
@@ -74,7 +76,7 @@ public interface DoctorDAO {
      * @throws Exception if database operation fails
      */
     List<Doctor> findBySpecialization(String specialization) throws Exception;
-    
+
     /**
      * Searches for doctors by name (case-insensitive).
      * 
@@ -83,7 +85,7 @@ public interface DoctorDAO {
      * @throws Exception if database operation fails
      */
     List<Doctor> searchByName(String name) throws Exception;
-    
+
     /**
      * Gets the total count of doctors.
      * 
@@ -91,7 +93,7 @@ public interface DoctorDAO {
      * @throws Exception if database operation fails
      */
     int getCount() throws Exception;
-    
+
     /**
      * Gets the count of active doctors.
      * 
@@ -99,37 +101,58 @@ public interface DoctorDAO {
      * @throws Exception if database operation fails
      */
     int getActiveCount() throws Exception;
-    
+
+    /**
+     * Retrieves a paginated list of doctors using offset and limit.
+     * 
+     * @param offset Number of records to skip
+     * @param limit  Maximum number of records to return
+     * @return List of Doctor objects
+     * @throws Exception if database operation fails
+     */
+    List<Doctor> findAllPaginated(int offset, int limit) throws Exception;
+
+    /**
+     * Searches for doctors by name with pagination.
+     * 
+     * @param name   Search term
+     * @param offset Number of records to skip
+     * @param limit  Maximum number of records to return
+     * @return List of matching Doctor objects
+     * @throws Exception if database operation fails
+     */
+    List<Doctor> searchByNamePaginated(String name, int offset, int limit) throws Exception;
+
     /**
      * Checks if an email already exists.
      * 
-     * @param email Email to check
+     * @param email           Email to check
      * @param excludeDoctorId Doctor ID to exclude (for updates)
      * @return true if email exists
      * @throws Exception if database operation fails
      */
     boolean emailExists(String email, Integer excludeDoctorId) throws Exception;
-    
+
     /**
      * Checks if a license number already exists.
      * 
-     * @param licenseNumber License number to check
+     * @param licenseNumber   License number to check
      * @param excludeDoctorId Doctor ID to exclude (for updates)
      * @return true if license number exists
      * @throws Exception if database operation fails
      */
     boolean licenseNumberExists(String licenseNumber, Integer excludeDoctorId) throws Exception;
-    
+
     /**
      * Checks if a phone number already exists.
      * 
-     * @param phoneNumber Phone number to check
+     * @param phoneNumber     Phone number to check
      * @param excludeDoctorId Doctor ID to exclude (for updates)
      * @return true if phone number exists
      * @throws Exception if database operation fails
      */
     boolean phoneNumberExists(String phoneNumber, Integer excludeDoctorId) throws Exception;
-    
+
     /**
      * Resets the doctor sequence to start from the next available ID.
      * 
@@ -137,4 +160,3 @@ public interface DoctorDAO {
      */
     void resetSequence() throws Exception;
 }
-

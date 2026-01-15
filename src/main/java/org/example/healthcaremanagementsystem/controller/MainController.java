@@ -259,6 +259,25 @@ public class MainController {
         }
     }
 
+    /**
+     * Opens the Clinical Consultation Dashboard.
+     */
+    @FXML
+    public void openConsultationDashboard() {
+        try {
+            FXMLLoader loader = new FXMLLoader(
+                    getClass().getResource("/org/example/healthcaremanagementsystem/consultation-view.fxml"));
+            Parent root = loader.load();
+            Stage stage = new Stage();
+            stage.setTitle("Clinical Consultation Dashboard");
+            stage.setScene(new Scene(root, 1000, 700));
+            stage.show();
+        } catch (IOException e) {
+            e.printStackTrace();
+            showAlert("Error", "Failed to open Clinical Consultation Dashboard: " + e.getMessage());
+        }
+    }
+
     private void showAlert(String title, String content) {
         Alert alert = new Alert(Alert.AlertType.INFORMATION);
         alert.setTitle(title);
