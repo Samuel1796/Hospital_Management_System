@@ -18,44 +18,47 @@ import java.util.Optional;
  */
 public class DoctorService {
 
+    private static final java.util.logging.Logger logger = java.util.logging.Logger
+            .getLogger(DoctorService.class.getName());
     private final DoctorDAO doctorDAO;
     private final CacheManager cacheManager;
 
     public DoctorService() {
         this.doctorDAO = new DoctorDAOImpl();
-        this.cacheManager = new CacheManager();
+        this.cacheManager = CacheManager.getInstance();
     }
 
     public Doctor createDoctor(Doctor doctor) throws Exception {
         validateDoctor(doctor);
 
-        // Check for duplicate email
         if (doctorDAO.emailExists(doctor.getEmail(), null)) {
             throw new IllegalArgumentException("A doctor with email '" + doctor.getEmail() + "' already exists.");
         }
 
-        // Check for duplicate license number
         if (doctorDAO.licenseNumberExists(doctor.getLicenseNumber(), null)) {
             throw new IllegalArgumentException(
                     "A doctor with license number '" + doctor.getLicenseNumber() + "' already exists.");
         }
 
-        // Check for duplicate phone number
         if (doctorDAO.phoneNumberExists(doctor.getPhoneNumber(), null)) {
             throw new IllegalArgumentException(
                     "A doctor with phone number '" + doctor.getPhoneNumber() + "' already exists.");
         }
 
-        // Reset sequence to ensure sequential IDs
         doctorDAO.resetSequence();
 
         Doctor createdDoctor = doctorDAO.create(doctor);
         cacheManager.cacheDoctor(createdDoctor.getDoctorId(), createdDoctor);
 
+        // Invalidate list caches
+        cacheManager.invalidateQuery("all_doctors");
+        cacheManager.invalidateQueryPattern("doctors_page_");
+
         return createdDoctor;
     }
 
     public Optional<Doctor> getDoctorById(Integer doctorId) throws Exception {
+        // ... logging could be added here too, but prioritized list caches ...
         Object cachedDoctor = cacheManager.getDoctor(doctorId);
         if (cachedDoctor != null) {
             return Optional.of((Doctor) cachedDoctor);
@@ -68,6 +71,17 @@ public class DoctorService {
     }
 
     public List<Doctor> getAllDoctors() throws Exception {
+        long startTime = System.currentTimeMillis();
+        @SuppressWarnings("unchecked")
+        List<Doctor> cachedDoctors = (List<Doctor>) cacheManager.getQuery("all_doctors");
+        if (cachedDoctors != null) {
+            long duration = System.currentTimeMillis() - startTime;
+            logger.info(
+                    String.format("[CACHE] HIT - All Doctors - %d records - %d ms", cachedDoctors.size(), duration));
+            return cachedDoctors;
+        }
+
+        logger.info("[CACHE] MISS - All Doctors - Fetching from DB");
         List<Doctor> doctors = doctorDAO.findAll();
 
         SortingUtil.sort(doctors, (d1, d2) -> {
@@ -78,24 +92,24 @@ public class DoctorService {
             return d1.getFirstName().compareToIgnoreCase(d2.getFirstName());
         });
 
+        cacheManager.cacheQuery("all_doctors", doctors);
+        long duration = System.currentTimeMillis() - startTime;
+        logger.info(String.format("[CACHE] STORED - All Doctors - %d records - %d ms", doctors.size(), duration));
         return doctors;
     }
 
     public boolean updateDoctor(Doctor doctor) throws Exception {
         validateDoctor(doctor);
 
-        // Check for duplicate email (excluding current doctor)
         if (doctorDAO.emailExists(doctor.getEmail(), doctor.getDoctorId())) {
             throw new IllegalArgumentException("A doctor with email '" + doctor.getEmail() + "' already exists.");
         }
 
-        // Check for duplicate license number (excluding current doctor)
         if (doctorDAO.licenseNumberExists(doctor.getLicenseNumber(), doctor.getDoctorId())) {
             throw new IllegalArgumentException(
                     "A doctor with license number '" + doctor.getLicenseNumber() + "' already exists.");
         }
 
-        // Check for duplicate phone number (excluding current doctor)
         if (doctorDAO.phoneNumberExists(doctor.getPhoneNumber(), doctor.getDoctorId())) {
             throw new IllegalArgumentException(
                     "A doctor with phone number '" + doctor.getPhoneNumber() + "' already exists.");
@@ -104,6 +118,8 @@ public class DoctorService {
         boolean updated = doctorDAO.update(doctor);
         if (updated) {
             cacheManager.invalidateDoctor(doctor.getDoctorId());
+            cacheManager.invalidateQuery("all_doctors");
+            cacheManager.invalidateQueryPattern("doctors_page_");
         }
 
         return updated;
@@ -113,7 +129,8 @@ public class DoctorService {
         boolean deleted = doctorDAO.delete(doctorId);
         if (deleted) {
             cacheManager.invalidateDoctor(doctorId);
-            // Reset sequence for sequential IDs
+            cacheManager.invalidateQuery("all_doctors");
+            cacheManager.invalidateQueryPattern("doctors_page_");
             doctorDAO.resetSequence();
         }
         return deleted;
@@ -131,8 +148,29 @@ public class DoctorService {
     }
 
     public List<Doctor> getDoctorsPaginated(int page, int size) throws Exception {
+        long startTime = System.currentTimeMillis();
+        String cacheKey = "doctors_page_" + page + "_size_" + size;
+
+        @SuppressWarnings("unchecked")
+        List<Doctor> cached = (List<Doctor>) cacheManager.getQuery(cacheKey);
+
+        if (cached != null) {
+            long duration = System.currentTimeMillis() - startTime;
+            logger.info(
+                    String.format("[CACHE] HIT - Doctors Page %d - %d records - %d ms", page, cached.size(), duration));
+            return cached;
+        }
+
+        logger.info(String.format("[CACHE] MISS - Doctors Page %d - Fetching from DB", page));
         int offset = page * size;
-        return doctorDAO.findAllPaginated(offset, size);
+        List<Doctor> doctors = doctorDAO.findAllPaginated(offset, size);
+
+        cacheManager.cacheQuery(cacheKey, doctors);
+        long duration = System.currentTimeMillis() - startTime;
+        logger.info(
+                String.format("[CACHE] STORED - Doctors Page %d - %d records - %d ms", page, doctors.size(), duration));
+
+        return doctors;
     }
 
     public List<Doctor> searchDoctorsPaginated(String name, int page, int size) throws Exception {

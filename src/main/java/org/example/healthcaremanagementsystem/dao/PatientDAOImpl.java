@@ -1,6 +1,7 @@
 package org.example.healthcaremanagementsystem.dao;
 
 import org.example.healthcaremanagementsystem.config.DatabaseConfig;
+import org.example.healthcaremanagementsystem.dao.PatientDAO;
 import org.example.healthcaremanagementsystem.model.Patient;
 
 import java.sql.*;
@@ -13,55 +14,55 @@ import java.util.logging.Level;
 /**
  * Implementation of PatientDAO interface.
  * Follows Single Responsibility Principle by handling only patient data access.
-
+ * 
  */
 public class PatientDAOImpl implements PatientDAO {
-    
+
     private static final Logger logger = Logger.getLogger(PatientDAOImpl.class.getName());
     private final DatabaseConfig dbConfig;
-    
+
     /**
      * Constructor that initializes database configuration.
      */
     public PatientDAOImpl() {
         this.dbConfig = DatabaseConfig.getInstance();
     }
-    
+
     @Override
     public Patient create(Patient patient) throws Exception {
         long startTime = System.currentTimeMillis();
         String sql = "INSERT INTO patients (first_name, last_name, email, phone_number, " +
-                     "date_of_birth, address, gender, blood_group, emergency_contact, " +
-                     "emergency_phone) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
-        
+                "date_of_birth, address, gender, blood_group, emergency_contact, " +
+                "emergency_phone) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+
         try (Connection conn = dbConfig.getConnection();
-             PreparedStatement pstmt = conn.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
-            
+                PreparedStatement pstmt = conn.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
+
             // Set parameters using parameterized query
             pstmt.setString(1, patient.getFirstName());
             pstmt.setString(2, patient.getLastName());
             pstmt.setString(3, patient.getEmail());
             pstmt.setString(4, patient.getPhoneNumber());
-            pstmt.setDate(5, patient.getDateOfBirth() != null ? 
-                         Date.valueOf(patient.getDateOfBirth()) : null);
+            pstmt.setDate(5, patient.getDateOfBirth() != null ? Date.valueOf(patient.getDateOfBirth()) : null);
             pstmt.setString(6, patient.getAddress());
             pstmt.setString(7, patient.getGender());
             pstmt.setString(8, patient.getBloodGroup());
             pstmt.setString(9, patient.getEmergencyContact());
             pstmt.setString(10, patient.getEmergencyPhone());
-            
+
             int affectedRows = pstmt.executeUpdate();
-            
+
             if (affectedRows == 0) {
                 throw new SQLException("Creating patient failed, no rows affected.");
             }
-            
+
             // Retrieve generated patient ID
             try (ResultSet generatedKeys = pstmt.getGeneratedKeys()) {
                 if (generatedKeys.next()) {
                     patient.setPatientId(generatedKeys.getInt(1));
                     long duration = System.currentTimeMillis() - startTime;
-                    logger.info(String.format("[DB] CREATE patient (ID: %d) - %d ms", patient.getPatientId(), duration));
+                    logger.info(
+                            String.format("[DB] CREATE patient (ID: %d) - %d ms", patient.getPatientId(), duration));
                     return patient;
                 } else {
                     throw new SQLException("Creating patient failed, no ID obtained.");
@@ -69,21 +70,22 @@ public class PatientDAOImpl implements PatientDAO {
             }
         } catch (Exception e) {
             long duration = System.currentTimeMillis() - startTime;
-            logger.log(Level.SEVERE, String.format("[DB] CREATE patient FAILED - %d ms - Error: %s", duration, e.getMessage()), e);
+            logger.log(Level.SEVERE,
+                    String.format("[DB] CREATE patient FAILED - %d ms - Error: %s", duration, e.getMessage()), e);
             throw e;
         }
     }
-    
+
     @Override
     public Optional<Patient> findById(Integer patientId) throws Exception {
         long startTime = System.currentTimeMillis();
         String sql = "SELECT * FROM patients WHERE patient_id = ?";
-        
+
         try (Connection conn = dbConfig.getConnection();
-             PreparedStatement pstmt = conn.prepareStatement(sql)) {
-            
+                PreparedStatement pstmt = conn.prepareStatement(sql)) {
+
             pstmt.setInt(1, patientId);
-            
+
             try (ResultSet rs = pstmt.executeQuery()) {
                 if (rs.next()) {
                     Patient patient = mapResultSetToPatient(rs);
@@ -94,24 +96,25 @@ public class PatientDAOImpl implements PatientDAO {
             }
         } catch (Exception e) {
             long duration = System.currentTimeMillis() - startTime;
-            logger.log(Level.SEVERE, String.format("[DB] SELECT patient by ID (ID: %d) FAILED - %d ms - Error: %s", patientId, duration, e.getMessage()), e);
+            logger.log(Level.SEVERE, String.format("[DB] SELECT patient by ID (ID: %d) FAILED - %d ms - Error: %s",
+                    patientId, duration, e.getMessage()), e);
             throw e;
         }
         long duration = System.currentTimeMillis() - startTime;
         logger.info(String.format("[DB] SELECT patient by ID (ID: %d) - NOT FOUND - %d ms", patientId, duration));
         return Optional.empty();
     }
-    
+
     @Override
     public List<Patient> findAll() throws Exception {
         long startTime = System.currentTimeMillis();
         String sql = "SELECT * FROM patients ORDER BY last_name, first_name";
         List<Patient> patients = new ArrayList<>();
-        
+
         try (Connection conn = dbConfig.getConnection();
-             PreparedStatement pstmt = conn.prepareStatement(sql);
-             ResultSet rs = pstmt.executeQuery()) {
-            
+                PreparedStatement pstmt = conn.prepareStatement(sql);
+                ResultSet rs = pstmt.executeQuery()) {
+
             while (rs.next()) {
                 patients.add(mapResultSetToPatient(rs));
             }
@@ -119,67 +122,67 @@ public class PatientDAOImpl implements PatientDAO {
             logger.info(String.format("[DB] SELECT all patients - %d records - %d ms", patients.size(), duration));
         } catch (Exception e) {
             long duration = System.currentTimeMillis() - startTime;
-            logger.log(Level.SEVERE, String.format("[DB] SELECT all patients FAILED - %d ms - Error: %s", duration, e.getMessage()), e);
+            logger.log(Level.SEVERE,
+                    String.format("[DB] SELECT all patients FAILED - %d ms - Error: %s", duration, e.getMessage()), e);
             throw e;
         }
         return patients;
     }
-    
+
     @Override
     public boolean update(Patient patient) throws Exception {
         String sql = "UPDATE patients SET first_name = ?, last_name = ?, email = ?, " +
-                     "phone_number = ?, date_of_birth = ?, address = ?, gender = ?, " +
-                     "blood_group = ?, emergency_contact = ?, emergency_phone = ? " +
-                     "WHERE patient_id = ?";
-        
+                "phone_number = ?, date_of_birth = ?, address = ?, gender = ?, " +
+                "blood_group = ?, emergency_contact = ?, emergency_phone = ? " +
+                "WHERE patient_id = ?";
+
         try (Connection conn = dbConfig.getConnection();
-             PreparedStatement pstmt = conn.prepareStatement(sql)) {
-            
+                PreparedStatement pstmt = conn.prepareStatement(sql)) {
+
             pstmt.setString(1, patient.getFirstName());
             pstmt.setString(2, patient.getLastName());
             pstmt.setString(3, patient.getEmail());
             pstmt.setString(4, patient.getPhoneNumber());
-            pstmt.setDate(5, patient.getDateOfBirth() != null ? 
-                         Date.valueOf(patient.getDateOfBirth()) : null);
+            pstmt.setDate(5, patient.getDateOfBirth() != null ? Date.valueOf(patient.getDateOfBirth()) : null);
             pstmt.setString(6, patient.getAddress());
             pstmt.setString(7, patient.getGender());
             pstmt.setString(8, patient.getBloodGroup());
             pstmt.setString(9, patient.getEmergencyContact());
             pstmt.setString(10, patient.getEmergencyPhone());
             pstmt.setInt(11, patient.getPatientId());
-            
+
             return pstmt.executeUpdate() > 0;
         }
     }
-    
+
     @Override
     public boolean delete(Integer patientId) throws Exception {
         String sql = "DELETE FROM patients WHERE patient_id = ?";
-        
+
         try (Connection conn = dbConfig.getConnection();
-             PreparedStatement pstmt = conn.prepareStatement(sql)) {
-            
+                PreparedStatement pstmt = conn.prepareStatement(sql)) {
+
             pstmt.setInt(1, patientId);
             return pstmt.executeUpdate() > 0;
         }
     }
-    
+
     @Override
     public List<Patient> searchByName(String name) throws Exception {
         // Case-insensitive search using ILIKE (PostgreSQL specific)
         // Index on first_name and last_name columns optimizes this query
         String sql = "SELECT * FROM patients WHERE LOWER(first_name) LIKE LOWER(?) " +
-                     "OR LOWER(last_name) LIKE LOWER(?) ORDER BY last_name, first_name";
-        
+                "OR LOWER(last_name) LIKE LOWER(?) ORDER BY last_name, first_name";
+
         List<Patient> patients = new ArrayList<>();
-        
+
         try (Connection conn = dbConfig.getConnection();
-             PreparedStatement pstmt = conn.prepareStatement(sql)) {
-            
+                PreparedStatement pstmt = conn.prepareStatement(sql)) {
+
             String searchPattern = "%" + name + "%";
             pstmt.setString(1, searchPattern);
             pstmt.setString(2, searchPattern);
-            
+
             try (ResultSet rs = pstmt.executeQuery()) {
                 while (rs.next()) {
                     patients.add(mapResultSetToPatient(rs));
@@ -188,16 +191,16 @@ public class PatientDAOImpl implements PatientDAO {
         }
         return patients;
     }
-    
+
     @Override
     public Optional<Patient> findByEmail(String email) throws Exception {
         String sql = "SELECT * FROM patients WHERE email = ?";
-        
+
         try (Connection conn = dbConfig.getConnection();
-             PreparedStatement pstmt = conn.prepareStatement(sql)) {
-            
+                PreparedStatement pstmt = conn.prepareStatement(sql)) {
+
             pstmt.setString(1, email);
-            
+
             try (ResultSet rs = pstmt.executeQuery()) {
                 if (rs.next()) {
                     return Optional.of(mapResultSetToPatient(rs));
@@ -206,17 +209,17 @@ public class PatientDAOImpl implements PatientDAO {
         }
         return Optional.empty();
     }
-    
+
     @Override
     public List<Patient> findByPhoneNumber(String phoneNumber) throws Exception {
         String sql = "SELECT * FROM patients WHERE phone_number = ?";
         List<Patient> patients = new ArrayList<>();
-        
+
         try (Connection conn = dbConfig.getConnection();
-             PreparedStatement pstmt = conn.prepareStatement(sql)) {
-            
+                PreparedStatement pstmt = conn.prepareStatement(sql)) {
+
             pstmt.setString(1, phoneNumber);
-            
+
             try (ResultSet rs = pstmt.executeQuery()) {
                 while (rs.next()) {
                     patients.add(mapResultSetToPatient(rs));
@@ -225,36 +228,36 @@ public class PatientDAOImpl implements PatientDAO {
         }
         return patients;
     }
-    
+
     @Override
     public int getCount() throws Exception {
         String sql = "SELECT COUNT(*) FROM patients";
-        
+
         try (Connection conn = dbConfig.getConnection();
-             PreparedStatement pstmt = conn.prepareStatement(sql);
-             ResultSet rs = pstmt.executeQuery()) {
-            
+                PreparedStatement pstmt = conn.prepareStatement(sql);
+                ResultSet rs = pstmt.executeQuery()) {
+
             if (rs.next()) {
                 return rs.getInt(1);
             }
         }
         return 0;
     }
-    
+
     @Override
     public boolean phoneNumberExists(String phoneNumber, Integer excludePatientId) throws Exception {
-        String sql = excludePatientId != null 
-            ? "SELECT COUNT(*) FROM patients WHERE phone_number = ? AND patient_id != ?"
-            : "SELECT COUNT(*) FROM patients WHERE phone_number = ?";
-        
+        String sql = excludePatientId != null
+                ? "SELECT COUNT(*) FROM patients WHERE phone_number = ? AND patient_id != ?"
+                : "SELECT COUNT(*) FROM patients WHERE phone_number = ?";
+
         try (Connection conn = dbConfig.getConnection();
-             PreparedStatement pstmt = conn.prepareStatement(sql)) {
-            
+                PreparedStatement pstmt = conn.prepareStatement(sql)) {
+
             pstmt.setString(1, phoneNumber);
             if (excludePatientId != null) {
                 pstmt.setInt(2, excludePatientId);
             }
-            
+
             try (ResultSet rs = pstmt.executeQuery()) {
                 if (rs.next()) {
                     return rs.getInt(1) > 0;
@@ -263,21 +266,21 @@ public class PatientDAOImpl implements PatientDAO {
         }
         return false;
     }
-    
+
     @Override
     public boolean emailExists(String email, Integer excludePatientId) throws Exception {
-        String sql = excludePatientId != null 
-            ? "SELECT COUNT(*) FROM patients WHERE email = ? AND patient_id != ?"
-            : "SELECT COUNT(*) FROM patients WHERE email = ?";
-        
+        String sql = excludePatientId != null
+                ? "SELECT COUNT(*) FROM patients WHERE email = ? AND patient_id != ?"
+                : "SELECT COUNT(*) FROM patients WHERE email = ?";
+
         try (Connection conn = dbConfig.getConnection();
-             PreparedStatement pstmt = conn.prepareStatement(sql)) {
-            
+                PreparedStatement pstmt = conn.prepareStatement(sql)) {
+
             pstmt.setString(1, email);
             if (excludePatientId != null) {
                 pstmt.setInt(2, excludePatientId);
             }
-            
+
             try (ResultSet rs = pstmt.executeQuery()) {
                 if (rs.next()) {
                     return rs.getInt(1) > 0;
@@ -286,21 +289,21 @@ public class PatientDAOImpl implements PatientDAO {
         }
         return false;
     }
-    
+
     @Override
     public void resetSequence() throws Exception {
         try (Connection conn = dbConfig.getConnection()) {
             // Get the max ID or set to 0 if no records exist
             String getMaxSql = "SELECT COALESCE(MAX(patient_id), 0) FROM patients";
             int maxId = 0;
-            
+
             try (PreparedStatement pstmt = conn.prepareStatement(getMaxSql);
-                 ResultSet rs = pstmt.executeQuery()) {
+                    ResultSet rs = pstmt.executeQuery()) {
                 if (rs.next()) {
                     maxId = rs.getInt(1);
                 }
             }
-            
+
             // Reset sequence to max_id + 1 (or 1 if table is empty)
             String resetSql = "SELECT setval('patients_patient_id_seq', ?, false)";
             try (PreparedStatement pstmt = conn.prepareStatement(resetSql)) {
@@ -309,18 +312,18 @@ public class PatientDAOImpl implements PatientDAO {
             }
         }
     }
-    
+
     @Override
     public List<Patient> findAllPaginated(int page, int pageSize) throws Exception {
         String sql = "SELECT * FROM patients ORDER BY last_name, first_name LIMIT ? OFFSET ?";
         List<Patient> patients = new ArrayList<>();
-        
+
         try (Connection conn = dbConfig.getConnection();
-             PreparedStatement pstmt = conn.prepareStatement(sql)) {
-            
+                PreparedStatement pstmt = conn.prepareStatement(sql)) {
+
             pstmt.setInt(1, pageSize);
             pstmt.setInt(2, page * pageSize);
-            
+
             try (ResultSet rs = pstmt.executeQuery()) {
                 while (rs.next()) {
                     patients.add(mapResultSetToPatient(rs));
@@ -329,23 +332,23 @@ public class PatientDAOImpl implements PatientDAO {
         }
         return patients;
     }
-    
+
     @Override
     public List<Patient> searchByNamePaginated(String name, int page, int pageSize) throws Exception {
         String sql = "SELECT * FROM patients WHERE LOWER(first_name) LIKE LOWER(?) " +
-                     "OR LOWER(last_name) LIKE LOWER(?) ORDER BY last_name, first_name LIMIT ? OFFSET ?";
-        
+                "OR LOWER(last_name) LIKE LOWER(?) ORDER BY last_name, first_name LIMIT ? OFFSET ?";
+
         List<Patient> patients = new ArrayList<>();
-        
+
         try (Connection conn = dbConfig.getConnection();
-             PreparedStatement pstmt = conn.prepareStatement(sql)) {
-            
+                PreparedStatement pstmt = conn.prepareStatement(sql)) {
+
             String searchPattern = "%" + name + "%";
             pstmt.setString(1, searchPattern);
             pstmt.setString(2, searchPattern);
             pstmt.setInt(3, pageSize);
             pstmt.setInt(4, page * pageSize);
-            
+
             try (ResultSet rs = pstmt.executeQuery()) {
                 while (rs.next()) {
                     patients.add(mapResultSetToPatient(rs));
@@ -354,19 +357,19 @@ public class PatientDAOImpl implements PatientDAO {
         }
         return patients;
     }
-    
+
     @Override
     public int getSearchCount(String name) throws Exception {
         String sql = "SELECT COUNT(*) FROM patients WHERE LOWER(first_name) LIKE LOWER(?) " +
-                     "OR LOWER(last_name) LIKE LOWER(?)";
-        
+                "OR LOWER(last_name) LIKE LOWER(?)";
+
         try (Connection conn = dbConfig.getConnection();
-             PreparedStatement pstmt = conn.prepareStatement(sql)) {
-            
+                PreparedStatement pstmt = conn.prepareStatement(sql)) {
+
             String searchPattern = "%" + name + "%";
             pstmt.setString(1, searchPattern);
             pstmt.setString(2, searchPattern);
-            
+
             try (ResultSet rs = pstmt.executeQuery()) {
                 if (rs.next()) {
                     return rs.getInt(1);
@@ -375,7 +378,7 @@ public class PatientDAOImpl implements PatientDAO {
         }
         return 0;
     }
-    
+
     /**
      * Maps a ResultSet row to a Patient object.
      * Encapsulates the mapping logic for reusability.
@@ -391,19 +394,18 @@ public class PatientDAOImpl implements PatientDAO {
         patient.setLastName(rs.getString("last_name"));
         patient.setEmail(rs.getString("email"));
         patient.setPhoneNumber(rs.getString("phone_number"));
-        
+
         Date dob = rs.getDate("date_of_birth");
         if (dob != null) {
             patient.setDateOfBirth(dob.toLocalDate());
         }
-        
+
         patient.setAddress(rs.getString("address"));
         patient.setGender(rs.getString("gender"));
         patient.setBloodGroup(rs.getString("blood_group"));
         patient.setEmergencyContact(rs.getString("emergency_contact"));
         patient.setEmergencyPhone(rs.getString("emergency_phone"));
-        
+
         return patient;
     }
 }
-
