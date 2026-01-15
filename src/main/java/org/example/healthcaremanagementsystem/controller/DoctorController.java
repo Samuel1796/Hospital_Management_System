@@ -3,13 +3,19 @@ package org.example.healthcaremanagementsystem.controller;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
+import javafx.fxml.FXMLLoader;
+import javafx.scene.Parent;
+import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.control.cell.PropertyValueFactory;
+import javafx.stage.Stage;
 import org.example.healthcaremanagementsystem.model.Doctor;
 import org.example.healthcaremanagementsystem.model.Department;
 import org.example.healthcaremanagementsystem.service.DoctorService;
 import org.example.healthcaremanagementsystem.dao.DepartmentDAO;
 import org.example.healthcaremanagementsystem.dao.DepartmentDAOImpl;
+
+import java.io.IOException;
 
 /**
  * Controller for Doctor Management module.
@@ -20,82 +26,82 @@ import org.example.healthcaremanagementsystem.dao.DepartmentDAOImpl;
  * @version 1.0
  */
 public class DoctorController {
-    
+
     @FXML
     private TextField txtFirstName;
-    
+
     @FXML
     private TextField txtLastName;
-    
+
     @FXML
     private TextField txtEmail;
-    
+
     @FXML
     private TextField txtPhoneNumber;
-    
+
     @FXML
     private ComboBox<String> comboSpecialization;
-    
+
     @FXML
     private ComboBox<Department> comboDepartment;
-    
+
     @FXML
     private TextField txtLicenseNumber;
-    
+
     @FXML
     private DatePicker datePickerHireDate;
-    
+
     @FXML
     private ComboBox<String> comboStatus;
-    
+
     @FXML
     private TextField txtSearch;
-    
+
     @FXML
     private TableView<Doctor> tableViewDoctors;
-    
+
     @FXML
     private TableColumn<Doctor, Integer> colDoctorId;
-    
+
     @FXML
     private TableColumn<Doctor, String> colFirstName;
-    
+
     @FXML
     private TableColumn<Doctor, String> colLastName;
-    
+
     @FXML
     private TableColumn<Doctor, String> colSpecialization;
-    
+
     @FXML
     private TableColumn<Doctor, String> colDepartment;
-    
+
     @FXML
     private TableColumn<Doctor, String> colStatus;
-    
+
     @FXML
     private Button btnCreate;
-    
+
     @FXML
     private Button btnUpdate;
-    
+
     @FXML
     private Button btnDelete;
-    
+
     @FXML
     private Button btnSearch;
-    
+
     @FXML
     private Button btnClear;
-    
+
     @FXML
     private Button btnClearSearch;
-    
+
     private final DoctorService doctorService;
     private final DepartmentDAO departmentDAO;
     private final ObservableList<Doctor> doctorList;
     private final ObservableList<Department> departmentList;
     private Doctor selectedDoctor;
-    
+
     /**
      * Constructor initializes services and observable lists.
      */
@@ -105,7 +111,7 @@ public class DoctorController {
         this.doctorList = FXCollections.observableArrayList();
         this.departmentList = FXCollections.observableArrayList();
     }
-    
+
     /**
      * Initializes the controller and sets up UI components.
      */
@@ -120,7 +126,7 @@ public class DoctorController {
         setupTableSelection();
         setupButtonActions();
     }
-    
+
     /**
      * Sets up table column bindings.
      */
@@ -130,7 +136,7 @@ public class DoctorController {
         colLastName.setCellValueFactory(new PropertyValueFactory<>("lastName"));
         colSpecialization.setCellValueFactory(new PropertyValueFactory<>("specialization"));
         colStatus.setCellValueFactory(new PropertyValueFactory<>("status"));
-        
+
         // Custom cell factory for department name
         colDepartment.setCellValueFactory(cellData -> {
             Doctor doctor = cellData.getValue();
@@ -142,26 +148,25 @@ public class DoctorController {
             }
             return new javafx.beans.property.SimpleStringProperty("N/A");
         });
-        
+
         tableViewDoctors.setItems(doctorList);
     }
-    
+
     /**
      * Sets up combo boxes with predefined values.
      */
     private void setupComboBoxes() {
         // Status options
         comboStatus.getItems().addAll("Active", "Inactive", "On Leave");
-        
+
         // Specialization options (5 common medical specializations)
         comboSpecialization.getItems().addAll(
-            "Cardiology",
-            "Neurology",
-            "Orthopedics",
-            "Pediatrics",
-            "General Medicine"
-        );
-        
+                "Cardiology",
+                "Neurology",
+                "Orthopedics",
+                "Pediatrics",
+                "General Medicine");
+
         // Department combo box will be populated from database
         comboDepartment.setCellFactory(listView -> new ListCell<Department>() {
             @Override
@@ -178,7 +183,7 @@ public class DoctorController {
             }
         });
     }
-    
+
     /**
      * Sets up input validation for email and phone number fields.
      */
@@ -191,7 +196,7 @@ public class DoctorController {
                 txtEmail.setStyle("");
             }
         });
-        
+
         // Phone number validation (Ghanaian format)
         txtPhoneNumber.textProperty().addListener((observable, oldValue, newValue) -> {
             if (newValue != null && !newValue.isEmpty() && !isValidPhoneNumber(newValue)) {
@@ -201,7 +206,7 @@ public class DoctorController {
             }
         });
     }
-    
+
     /**
      * Sets up placeholders for input fields.
      */
@@ -214,7 +219,7 @@ public class DoctorController {
         txtSearch.setPromptText("Search by name...");
         datePickerHireDate.setPromptText("DD/MM/YYYY");
     }
-    
+
     /**
      * Loads all departments from database.
      */
@@ -227,7 +232,7 @@ public class DoctorController {
             showError("Error", "Failed to load departments: " + e.getMessage());
         }
     }
-    
+
     /**
      * Finds a department by ID.
      * 
@@ -240,24 +245,23 @@ public class DoctorController {
                 .findFirst()
                 .orElse(null);
     }
-    
+
     /**
      * Sets up table row selection handler.
      */
     private void setupTableSelection() {
         tableViewDoctors.getSelectionModel().selectedItemProperty().addListener(
-            (observable, oldValue, newValue) -> {
-                if (newValue != null) {
-                    selectedDoctor = newValue;
-                    populateForm(newValue);
-                    btnUpdate.setDisable(false);
-                    btnDelete.setDisable(false);
-                    btnCreate.setDisable(true);
-                }
-            }
-        );
+                (observable, oldValue, newValue) -> {
+                    if (newValue != null) {
+                        selectedDoctor = newValue;
+                        populateForm(newValue);
+                        btnUpdate.setDisable(false);
+                        btnDelete.setDisable(false);
+                        btnCreate.setDisable(true);
+                    }
+                });
     }
-    
+
     /**
      * Sets up button event handlers.
      */
@@ -268,8 +272,9 @@ public class DoctorController {
         btnSearch.setOnAction(e -> searchDoctors());
         btnClear.setOnAction(e -> clearForm());
         btnClearSearch.setOnAction(e -> clearSearch());
+        btnClearSearch.setOnAction(e -> clearSearch());
     }
-    
+
     /**
      * Loads all doctors from the database.
      */
@@ -281,7 +286,7 @@ public class DoctorController {
             showError("Error", "Failed to load doctors: " + e.getMessage());
         }
     }
-    
+
     /**
      * Creates a new doctor record with strict validation.
      * Prevents invalid data from being saved to database.
@@ -292,10 +297,12 @@ public class DoctorController {
         if (!validateForm()) {
             return; // Stop here - do not proceed with database operation
         }
-        
+
         try {
             Doctor doctor = createDoctorFromForm();
             Doctor created = doctorService.createDoctor(doctor);
+            org.example.healthcaremanagementsystem.util.SystemLogger.getInstance().log("DOCTOR",
+                    "Created new doctor: " + created.getFirstName() + " " + created.getLastName());
             loadAllDoctors(); // Reload to get sequential IDs
             clearForm();
             showSuccess("Success", "Doctor created successfully! (ID: " + created.getDoctorId() + ")");
@@ -306,7 +313,7 @@ public class DoctorController {
             showError("Error", "Failed to create doctor: " + e.getMessage());
         }
     }
-    
+
     /**
      * Updates an existing doctor record with strict validation.
      * Prevents invalid data from being saved to database.
@@ -317,17 +324,19 @@ public class DoctorController {
             showError("Error", "Please select a doctor to update.");
             return;
         }
-        
+
         // Validate form before attempting to update
         if (!validateForm()) {
             return; // Stop here - do not proceed with database operation
         }
-        
+
         try {
             Doctor doctor = createDoctorFromForm();
             doctor.setDoctorId(selectedDoctor.getDoctorId());
-            
+
             if (doctorService.updateDoctor(doctor)) {
+                org.example.healthcaremanagementsystem.util.SystemLogger.getInstance().log("DOCTOR",
+                        "Updated doctor ID: " + doctor.getDoctorId());
                 loadAllDoctors(); // Reload to refresh the table
                 clearForm();
                 showSuccess("Success", "Doctor updated successfully!");
@@ -339,7 +348,7 @@ public class DoctorController {
             showError("Error", "Failed to update doctor: " + e.getMessage());
         }
     }
-    
+
     /**
      * Deletes the selected doctor record.
      */
@@ -349,15 +358,17 @@ public class DoctorController {
             showError("Error", "Please select a doctor to delete.");
             return;
         }
-        
+
         Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
         alert.setTitle("Confirm Delete");
         alert.setHeaderText("Delete Doctor");
         alert.setContentText("Are you sure you want to delete this doctor? This action cannot be undone.");
-        
+
         if (alert.showAndWait().orElse(ButtonType.CANCEL) == ButtonType.OK) {
             try {
                 if (doctorService.deleteDoctor(selectedDoctor.getDoctorId())) {
+                    org.example.healthcaremanagementsystem.util.SystemLogger.getInstance().log("DOCTOR",
+                            "Deleted doctor ID: " + selectedDoctor.getDoctorId());
                     loadAllDoctors(); // Reload to refresh IDs
                     clearForm();
                     showSuccess("Success", "Doctor deleted successfully!");
@@ -367,14 +378,14 @@ public class DoctorController {
             }
         }
     }
-    
+
     /**
      * Searches for doctors by name.
      */
     @FXML
     private void searchDoctors() {
         String searchTerm = txtSearch.getText().trim();
-        
+
         try {
             doctorList.clear();
             if (searchTerm.isEmpty()) {
@@ -386,7 +397,7 @@ public class DoctorController {
             showError("Error", "Failed to search doctors: " + e.getMessage());
         }
     }
-    
+
     /**
      * Clears search and displays all doctors.
      */
@@ -395,7 +406,7 @@ public class DoctorController {
         txtSearch.clear();
         loadAllDoctors();
     }
-    
+
     /**
      * Validates all form fields before submission.
      * 
@@ -407,64 +418,64 @@ public class DoctorController {
             txtFirstName.requestFocus();
             return false;
         }
-        
+
         if (txtLastName.getText().trim().isEmpty()) {
             showError("Validation Error", "Last name is required.");
             txtLastName.requestFocus();
             return false;
         }
-        
+
         if (txtEmail.getText().trim().isEmpty()) {
             showError("Validation Error", "Email is required.");
             txtEmail.requestFocus();
             return false;
         }
-        
+
         if (!isValidEmail(txtEmail.getText().trim())) {
             showError("Validation Error", "Please enter a valid email address.");
             txtEmail.requestFocus();
             return false;
         }
-        
+
         if (txtPhoneNumber.getText().trim().isEmpty()) {
             showError("Validation Error", "Phone number is required.");
             txtPhoneNumber.requestFocus();
             return false;
         }
-        
+
         if (!isValidPhoneNumber(txtPhoneNumber.getText().trim())) {
             showError("Validation Error", "Please enter a valid Ghanaian phone number (e.g., 0244XXXXXX).");
             txtPhoneNumber.requestFocus();
             return false;
         }
-        
+
         if (comboSpecialization.getValue() == null) {
             showError("Validation Error", "Specialization is required.");
             comboSpecialization.requestFocus();
             return false;
         }
-        
+
         if (comboDepartment.getValue() == null) {
             showError("Validation Error", "Department is required.");
             comboDepartment.requestFocus();
             return false;
         }
-        
+
         if (txtLicenseNumber.getText().trim().isEmpty()) {
             showError("Validation Error", "License number is required.");
             txtLicenseNumber.requestFocus();
             return false;
         }
-        
+
         if (comboStatus.getValue() == null) {
             showError("Validation Error", "Status is required.");
             comboStatus.requestFocus();
             return false;
         }
-        
+
         return true;
     }
-    
+
     /**
      * Validates email format.
      * 
@@ -475,7 +486,7 @@ public class DoctorController {
         String emailRegex = "^[a-zA-Z0-9_+&*-]+(?:\\.[a-zA-Z0-9_+&*-]+)*@(?:[a-zA-Z0-9-]+\\.)+[a-zA-Z]{2,7}$";
         return email.matches(emailRegex);
     }
-    
+
     /**
      * Validates Ghanaian phone number format.
      * 
@@ -487,7 +498,7 @@ public class DoctorController {
         String phoneRegex = "^(0[2-5]\\d{8}|030\\d{7})$";
         return cleaned.matches(phoneRegex);
     }
-    
+
     /**
      * Creates a Doctor object from form fields.
      * 
@@ -506,7 +517,7 @@ public class DoctorController {
         doctor.setStatus(comboStatus.getValue());
         return doctor;
     }
-    
+
     /**
      * Populates form fields with doctor data.
      * 
@@ -521,14 +532,14 @@ public class DoctorController {
         txtLicenseNumber.setText(doctor.getLicenseNumber());
         datePickerHireDate.setValue(doctor.getHireDate());
         comboStatus.setValue(doctor.getStatus());
-        
+
         // Set department
         Department dept = findDepartmentById(doctor.getDepartmentId());
         if (dept != null) {
             comboDepartment.setValue(dept);
         }
     }
-    
+
     /**
      * Clears all form fields and resets selection.
      */
@@ -544,18 +555,19 @@ public class DoctorController {
         comboDepartment.setValue(null);
         comboStatus.setValue(null);
         txtSearch.clear();
-        
+
         tableViewDoctors.getSelectionModel().clearSelection();
         selectedDoctor = null;
         btnCreate.setDisable(false);
         btnUpdate.setDisable(true);
         btnDelete.setDisable(true);
+        btnDelete.setDisable(true);
     }
-    
+
     /**
      * Shows a success alert dialog.
      * 
-     * @param title Alert title
+     * @param title   Alert title
      * @param message Alert message
      */
     private void showSuccess(String title, String message) {
@@ -565,11 +577,11 @@ public class DoctorController {
         alert.setContentText(message);
         alert.showAndWait();
     }
-    
+
     /**
      * Shows an error alert dialog.
      * 
-     * @param title Alert title
+     * @param title   Alert title
      * @param message Alert message
      */
     private void showError(String title, String message) {
@@ -580,4 +592,3 @@ public class DoctorController {
         alert.showAndWait();
     }
 }
-
