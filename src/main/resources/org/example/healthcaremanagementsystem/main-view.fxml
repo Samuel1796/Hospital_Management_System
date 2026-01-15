@@ -8,6 +8,7 @@
 <?import javafx.scene.layout.HBox?>
 <?import javafx.scene.layout.BorderPane?>
 <?import javafx.scene.layout.Region?>
+<?import java.net.URL?>
 
 <BorderPane xmlns="http://javafx.com/javafx"
             xmlns:fx="http://javafx.com/fxml"
@@ -15,6 +16,10 @@
             prefWidth="900" prefHeight="600"
             style="-fx-background-color: #f8f9fa;">
     
+    <stylesheets>
+        <URL value="@styles.css" />
+    </stylesheets>
+
     <!-- Left Sidebar -->
     <left>
         <VBox prefWidth="240" style="-fx-background-color: #1e3a5f; -fx-padding: 0;">
@@ -27,31 +32,57 @@
             
             <!-- Navigation Menu -->
             <VBox spacing="4" style="-fx-padding: 16 12;">
-                <Label text="MAIN MENU" style="-fx-text-fill: #607d8b; -fx-font-size: 10px; -fx-padding: 8 8 8 8;"/>
+                <!-- Management Section -->
+                <Label text="MANAGEMENT" style="-fx-text-fill: #607d8b; -fx-font-size: 10px; -fx-font-weight: bold; -fx-padding: 8 8 4 8;"/>
                 
                 <Button fx:id="btnPatientManagement" text="Patients" 
-                        prefWidth="216" prefHeight="42" alignment="CENTER_LEFT"
-                        style="-fx-background-color: transparent; -fx-text-fill: #eceff1; -fx-font-size: 14px; -fx-padding: 0 0 0 16; -fx-background-radius: 4; -fx-cursor: hand;"
+                        prefWidth="216" prefHeight="36" styleClass="sidebar-button"
                         onAction="#openPatientManagement"/>
                 
                 <Button fx:id="btnDoctorManagement" text="Doctors" 
-                        prefWidth="216" prefHeight="42" alignment="CENTER_LEFT"
-                        style="-fx-background-color: transparent; -fx-text-fill: #eceff1; -fx-font-size: 14px; -fx-padding: 0 0 0 16; -fx-background-radius: 4; -fx-cursor: hand;"
+                        prefWidth="216" prefHeight="36" styleClass="sidebar-button"
                         onAction="#openDoctorManagement"/>
                 
                 <Button fx:id="btnAppointmentManagement" text="Appointments" 
-                        prefWidth="216" prefHeight="42" alignment="CENTER_LEFT"
-                        style="-fx-background-color: transparent; -fx-text-fill: #eceff1; -fx-font-size: 14px; -fx-padding: 0 0 0 16; -fx-background-radius: 4; -fx-cursor: hand;"
+                        prefWidth="216" prefHeight="36" styleClass="sidebar-button"
                         onAction="#openAppointmentManagement"/>
+
+                <Button fx:id="btnInventory" text="Inventory" 
+                        prefWidth="216" prefHeight="36" styleClass="sidebar-button"
+                        onAction="#openInventory"/>
                 
-                <Separator style="-fx-background-color: #37474f; -fx-padding: 8 0;"/>
+                <Separator style="-fx-background-color: #37474f; -fx-padding: 4 0; -fx-opacity: 0.5;"/>
+
+                <!-- Clinical Section -->
+                <Label text="CLINICAL" style="-fx-text-fill: #607d8b; -fx-font-size: 10px; -fx-font-weight: bold; -fx-padding: 8 8 4 8;"/>
+
+                <Button fx:id="btnConsultation" text="Consultations" 
+                        prefWidth="216" prefHeight="36" styleClass="sidebar-button"
+                        onAction="#openConsultationDashboard"/>
                 
-                <Label text="ANALYTICS" style="-fx-text-fill: #607d8b; -fx-font-size: 10px; -fx-padding: 8 8 8 8;"/>
+                <!-- History Section -->
+                <Label text="HISTORY" style="-fx-text-fill: #607d8b; -fx-font-size: 10px; -fx-font-weight: bold; -fx-padding: 8 8 4 8;"/>
+                
+                <Button fx:id="btnPatientHistory" text="Patient History" 
+                        prefWidth="216" prefHeight="36" styleClass="sidebar-button"
+                        onAction="#openPatientHistoryDashboard"/>
+                        
+                <Button fx:id="btnDoctorHistory" text="Doctor History" 
+                        prefWidth="216" prefHeight="36" styleClass="sidebar-button"
+                        onAction="#openDoctorHistoryDashboard"/>
+
+                <Separator style="-fx-background-color: #37474f; -fx-padding: 4 0; -fx-opacity: 0.5;"/>
+
+                <!-- System Section -->
+                <Label text="SYSTEM" style="-fx-text-fill: #607d8b; -fx-font-size: 10px; -fx-font-weight: bold; -fx-padding: 8 8 4 8;"/>
                 
                 <Button fx:id="btnViewReports" text="Reports &amp; Metrics" 
-                        prefWidth="216" prefHeight="42" alignment="CENTER_LEFT"
-                        style="-fx-background-color: transparent; -fx-text-fill: #eceff1; -fx-font-size: 14px; -fx-padding: 0 0 0 16; -fx-background-radius: 4; -fx-cursor: hand;"
+                        prefWidth="216" prefHeight="36" styleClass="sidebar-button"
                         onAction="#openReports"/>
+
+                <Button fx:id="btnSystemLogs" text="System Logs" 
+                        prefWidth="216" prefHeight="36" styleClass="sidebar-button"
+                        onAction="#openSystemLogs"/>
             </VBox>
             
             <!-- Spacer -->
@@ -59,8 +90,8 @@
             
             <!-- Footer -->
             <VBox style="-fx-padding: 16 20; -fx-background-color: #152d4a;">
-                <Label text="PostgreSQL Database" style="-fx-text-fill: #607d8b; -fx-font-size: 10px;"/>
-                <Label text="v1.0.0" style="-fx-text-fill: #455a64; -fx-font-size: 10px;"/>
+                <Label text="PostgreSQL &amp; Mongo" style="-fx-text-fill: #607d8b; -fx-font-size: 10px;"/>
+                <Label text="v1.1.0" style="-fx-text-fill: #455a64; -fx-font-size: 10px;"/>
             </VBox>
         </VBox>
     </left>

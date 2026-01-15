@@ -14,15 +14,25 @@ import java.util.Optional;
  */
 public class AppointmentService {
 
+    private static final java.util.logging.Logger logger = java.util.logging.Logger
+            .getLogger(AppointmentService.class.getName());
     private final AppointmentDAO appointmentDAO;
+    private final org.example.healthcaremanagementsystem.util.CacheManager cacheManager;
 
     public AppointmentService() {
         this.appointmentDAO = new AppointmentDAOImpl();
+        this.cacheManager = org.example.healthcaremanagementsystem.util.CacheManager.getInstance();
     }
 
     public Appointment createAppointment(Appointment appointment) throws Exception {
         validateAppointment(appointment);
-        return appointmentDAO.create(appointment);
+        Appointment created = appointmentDAO.create(appointment);
+
+        cacheManager.cacheAppointment(created.getAppointmentId(), created);
+        cacheManager.invalidateQuery("all_appointments");
+        cacheManager.invalidateQueryPattern("appointments_page_");
+
+        return created;
     }
 
     public Optional<Appointment> getAppointmentById(Integer appointmentId) throws Exception {
@@ -30,17 +40,54 @@ public class AppointmentService {
     }
 
     public List<Appointment> getAllAppointments() throws Exception {
-        return appointmentDAO.findAll();
+        long startTime = System.currentTimeMillis();
+        @SuppressWarnings("unchecked")
+        List<Appointment> cached = (List<Appointment>) cacheManager.getQuery("all_appointments");
+
+        if (cached != null) {
+            long duration = System.currentTimeMillis() - startTime;
+            logger.info(String.format("[CACHE] HIT - All Appointments - %d records - %d ms", cached.size(), duration));
+            return cached;
+        }
+
+        logger.info("[CACHE] MISS - All Appointments - Fetching from DB");
+        List<Appointment> appointments = appointmentDAO.findAll();
+
+        cacheManager.cacheQuery("all_appointments", appointments);
+        long duration = System.currentTimeMillis() - startTime;
+        logger.info(
+                String.format("[CACHE] STORED - All Appointments - %d records - %d ms", appointments.size(), duration));
+
+        return appointments;
     }
 
     public boolean updateAppointment(Appointment appointment) throws Exception {
         validateAppointment(appointment);
-        return appointmentDAO.update(appointment);
+        boolean updated = appointmentDAO.update(appointment);
+
+        if (updated) {
+            cacheManager.invalidateAppointment(appointment.getAppointmentId());
+            cacheManager.invalidateQuery("all_appointments");
+            cacheManager.invalidateQueryPattern("appointments_page_");
+        }
+
+        return updated;
     }
 
     public boolean deleteAppointment(Integer appointmentId) throws Exception {
-        return appointmentDAO.delete(appointmentId);
+        boolean deleted = appointmentDAO.delete(appointmentId);
+
+        if (deleted) {
+            cacheManager.invalidateAppointment(appointmentId);
+            cacheManager.invalidateQuery("all_appointments");
+            cacheManager.invalidateQueryPattern("appointments_page_");
+        }
+
+        return deleted;
     }
+
+    // ... getAppointmentsByPatient, getAppointmentsByDoctor,
+    // getAppointmentsByDateRange are fine ...
 
     public List<Appointment> getAppointmentsByPatient(Integer patientId) throws Exception {
         return appointmentDAO.findByPatientId(patientId);
@@ -63,7 +110,28 @@ public class AppointmentService {
      * @return List of appointments for the specified page
      */
     public List<Appointment> getAppointmentsPaginated(int page, int pageSize) throws Exception {
-        return appointmentDAO.findAllPaginated(page, pageSize);
+        long startTime = System.currentTimeMillis();
+        String cacheKey = "appointments_page_" + page + "_size_" + pageSize;
+
+        @SuppressWarnings("unchecked")
+        List<Appointment> cached = (List<Appointment>) cacheManager.getQuery(cacheKey);
+
+        if (cached != null) {
+            long duration = System.currentTimeMillis() - startTime;
+            logger.info(String.format("[CACHE] HIT - Appointments Page %d - %d records - %d ms", page, cached.size(),
+                    duration));
+            return cached;
+        }
+
+        logger.info(String.format("[CACHE] MISS - Appointments Page %d - Fetching from DB", page));
+        List<Appointment> appointments = appointmentDAO.findAllPaginated(page, pageSize);
+
+        cacheManager.cacheQuery(cacheKey, appointments);
+        long duration = System.currentTimeMillis() - startTime;
+        logger.info(String.format("[CACHE] STORED - Appointments Page %d - %d records - %d ms", page,
+                appointments.size(), duration));
+
+        return appointments;
     }
 
     /**

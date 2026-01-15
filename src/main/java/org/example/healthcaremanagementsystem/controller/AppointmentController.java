@@ -16,6 +16,10 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
+import javafx.stage.Stage;
+import javafx.scene.Parent;
+import javafx.scene.Scene;
+import javafx.fxml.FXMLLoader;
 
 /**
  * Controller for Appointment Management module.
@@ -26,16 +30,16 @@ public class AppointmentController {
 
     @FXML
     private TextField txtSelectedPatient;
-    
+
     @FXML
     private TextField txtSelectedDoctor;
-    
+
     @FXML
     private Button btnSelectPatient;
-    
+
     @FXML
     private Button btnSelectDoctor;
-    
+
     private Patient selectedPatient;
     private Doctor selectedDoctor;
 
@@ -95,6 +99,9 @@ public class AppointmentController {
 
     @FXML
     private Button btnClearSearch;
+
+    @FXML
+    private Button btnViewDetails;
 
     // Pagination components
     @FXML
@@ -188,7 +195,7 @@ public class AppointmentController {
         // Time slots
         comboAppointmentTime.getItems().addAll(TIME_SLOTS);
     }
-    
+
     /**
      * Opens searchable dialog to select a patient.
      */
@@ -205,7 +212,7 @@ public class AppointmentController {
             showError("Error", "Failed to open patient selection dialog: " + e.getMessage());
         }
     }
-    
+
     /**
      * Opens searchable dialog to select a doctor.
      */
@@ -412,6 +419,8 @@ public class AppointmentController {
                         btnUpdate.setDisable(false);
                         btnDelete.setDisable(false);
                         btnCreate.setDisable(true);
+                        if (btnViewDetails != null)
+                            btnViewDetails.setDisable(false);
                     }
                 });
     }
@@ -419,6 +428,7 @@ public class AppointmentController {
     /**
      * Sets up button event handlers.
      */
+    @FXML
     private void setupButtonActions() {
         btnCreate.setOnAction(e -> createAppointment());
         btnUpdate.setOnAction(e -> updateAppointment());
@@ -426,6 +436,35 @@ public class AppointmentController {
         btnSearch.setOnAction(e -> searchAppointments());
         btnClear.setOnAction(e -> clearForm());
         btnClearSearch.setOnAction(e -> clearSearch());
+
+        if (btnViewDetails != null) {
+            btnViewDetails.setOnAction(e -> openAppointmentDetails());
+        }
+    }
+
+    @FXML
+    private void openAppointmentDetails() {
+        if (selectedAppointment == null) {
+            showError("Error", "Please select an appointment to view details.");
+            return;
+        }
+
+        try {
+            FXMLLoader loader = new FXMLLoader(
+                    getClass().getResource("/org/example/healthcaremanagementsystem/appointment-details.fxml"));
+            Parent root = loader.load();
+
+            AppointmentDetailsController controller = loader.getController();
+            controller.setAppointment(selectedAppointment);
+
+            Stage stage = new Stage();
+            stage.setTitle("Appointment Details - Clinical Workflow");
+            stage.setScene(new Scene(root));
+            stage.show();
+        } catch (Exception e) {
+            showError("Error", "Failed to open appointment details: " + e.getMessage());
+            e.printStackTrace();
+        }
     }
 
     /**
@@ -687,6 +726,8 @@ public class AppointmentController {
         btnCreate.setDisable(false);
         btnUpdate.setDisable(true);
         btnDelete.setDisable(true);
+        if (btnViewDetails != null)
+            btnViewDetails.setDisable(true);
     }
 
     /**

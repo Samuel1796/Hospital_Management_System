@@ -16,6 +16,10 @@ public class Prescription {
     private String diagnosis;
     private String instructions;
     private LocalDate validUntil;
+    private String medicationName;
+    private String dosage;
+    private String frequency;
+    private String duration;
 
     /**
      * Default constructor.
@@ -33,10 +37,15 @@ public class Prescription {
      * @param diagnosis        Patient's diagnosis
      * @param instructions     Prescription instructions
      * @param validUntil       Date until which prescription is valid
+     * @param medicationName   Name of the medication
+     * @param dosage           Dosage (e.g. 500mg)
+     * @param frequency        Frequency (e.g. 2 times daily)
+     * @param duration         Duration (e.g. 5 days)
      */
     public Prescription(Integer patientId, Integer doctorId, Integer appointmentId,
             LocalDate prescriptionDate, String diagnosis,
-            String instructions, LocalDate validUntil) {
+            String instructions, LocalDate validUntil,
+            String medicationName, String dosage, String frequency, String duration) {
         this.patientId = patientId;
         this.doctorId = doctorId;
         this.appointmentId = appointmentId;
@@ -44,23 +53,19 @@ public class Prescription {
         this.diagnosis = diagnosis;
         this.instructions = instructions;
         this.validUntil = validUntil;
+        this.medicationName = medicationName;
+        this.dosage = dosage;
+        this.frequency = frequency;
+        this.duration = duration;
     }
 
     /**
      * Full constructor including prescription ID (for existing records).
-     * 
-     * @param prescriptionId   Unique prescription identifier
-     * @param patientId        ID of the patient
-     * @param doctorId         ID of the prescribing doctor
-     * @param appointmentId    ID of the associated appointment
-     * @param prescriptionDate Date when prescription was issued
-     * @param diagnosis        Patient's diagnosis
-     * @param instructions     Prescription instructions
-     * @param validUntil       Date until which prescription is valid
      */
     public Prescription(Integer prescriptionId, Integer patientId, Integer doctorId,
             Integer appointmentId, LocalDate prescriptionDate,
-            String diagnosis, String instructions, LocalDate validUntil) {
+            String diagnosis, String instructions, LocalDate validUntil,
+            String medicationName, String dosage, String frequency, String duration) {
         this.prescriptionId = prescriptionId;
         this.patientId = patientId;
         this.doctorId = doctorId;
@@ -69,6 +74,10 @@ public class Prescription {
         this.diagnosis = diagnosis;
         this.instructions = instructions;
         this.validUntil = validUntil;
+        this.medicationName = medicationName;
+        this.dosage = dosage;
+        this.frequency = frequency;
+        this.duration = duration;
     }
 
     // Getters and Setters
@@ -137,6 +146,38 @@ public class Prescription {
         this.validUntil = validUntil;
     }
 
+    public String getMedicationName() {
+        return medicationName;
+    }
+
+    public void setMedicationName(String medicationName) {
+        this.medicationName = medicationName;
+    }
+
+    public String getDosage() {
+        return dosage;
+    }
+
+    public void setDosage(String dosage) {
+        this.dosage = dosage;
+    }
+
+    public String getFrequency() {
+        return frequency;
+    }
+
+    public void setFrequency(String frequency) {
+        this.frequency = frequency;
+    }
+
+    public String getDuration() {
+        return duration;
+    }
+
+    public void setDuration(String duration) {
+        this.duration = duration;
+    }
+
     @Override
     public String toString() {
         return "Prescription{" +
@@ -145,6 +186,7 @@ public class Prescription {
                 ", doctorId=" + doctorId +
                 ", prescriptionDate=" + prescriptionDate +
                 ", diagnosis='" + diagnosis + '\'' +
+                ", medicationName='" + medicationName + '\'' +
                 '}';
     }
 }
