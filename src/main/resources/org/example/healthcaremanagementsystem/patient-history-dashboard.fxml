@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<BorderPane xmlns="http://javafx.com/javafx"
+            xmlns:fx="http://javafx.com/fxml"
+            fx:controller="org.example.healthcaremanagementsystem.controller.PatientHistoryDashboardController"
+            style="-fx-background-color: #f8f9fa;">
+
+    <left>
+        <VBox spacing="10" style="-fx-padding: 10; -fx-background-color: white; -fx-border-color: #e0e0e0; -fx-border-width: 0 1 0 0;" prefWidth="300">
+            <Label text="Select Patient" style="-fx-font-weight: bold; -fx-font-size: 14px;"/>
+            <TextField fx:id="txtSearch" promptText="Search patients..."/>
+            <ListView fx:id="listPatients" VBox.vgrow="ALWAYS"/>
+        </VBox>
+    </left>
+
+    <center>
+        <!-- Embed the generic history view -->
+        <fx:include source="history-view.fxml" fx:id="historyView"/>
+    </center>
+
+</BorderPane>

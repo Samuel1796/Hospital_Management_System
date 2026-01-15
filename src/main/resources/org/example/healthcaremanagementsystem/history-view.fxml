@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<VBox spacing="20" style="-fx-padding: 20;" 
+      xmlns="http://javafx.com/javafx" 
+      xmlns:fx="http://javafx.com/fxml"
+      fx:controller="org.example.healthcaremanagementsystem.controller.HistoryController">
+
+    <Label fx:id="lblTitle" text="History" style="-fx-font-size: 20px; -fx-font-weight: bold; -fx-text-fill: #2c3e50;"/>
+
+    <TabPane tabClosingPolicy="UNAVAILABLE" VBox.vgrow="ALWAYS">
+        <Tab text="Medical Logs">
+            <ListView fx:id="listLogs" style="-fx-padding: 10;" />
+        </Tab>
+        <Tab text="Prescriptions">
+            <ListView fx:id="listPrescriptions" style="-fx-padding: 10;" />
+        </Tab>
+    </TabPane>
+
+</VBox>
