@@ -251,7 +251,7 @@ public class PatientController {
     }
 
     private void setupComboBoxes() {
-        comboGender.getItems().addAll("Male", "Female", "Other");
+        comboGender.getItems().addAll("Male", "Female");
         comboBloodGroup.getItems().addAll("A+", "A-", "B+", "B-", "AB+", "AB-", "O+", "O-");
     }
 
