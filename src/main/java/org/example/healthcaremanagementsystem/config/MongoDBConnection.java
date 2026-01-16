@@ -3,12 +3,14 @@ package org.example.healthcaremanagementsystem.config;
 import com.mongodb.client.MongoClient;
 import com.mongodb.client.MongoClients;
 import com.mongodb.client.MongoDatabase;
+import io.github.cdimascio.dotenv.Dotenv;
 
 public class MongoDBConnection {
+    private static final Dotenv dotenv = Dotenv.load();
     private static MongoClient mongoClient;
     private static MongoDatabase database;
-    private static final String CONNECTION_STRING = "mongodb://localhost:27017";
-    private static final String DATABASE_NAME = "hospital_logs";
+    private static final String CONNECTION_STRING = dotenv.get("MONGO_CONNECTION_STRING");
+    private static final String DATABASE_NAME = dotenv.get("MONGO_DATABASE_NAME");
 
     private MongoDBConnection() {
     }
