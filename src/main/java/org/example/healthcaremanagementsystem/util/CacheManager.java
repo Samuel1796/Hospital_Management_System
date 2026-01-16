@@ -48,8 +48,8 @@ public class CacheManager {
     private final AtomicLong queryCacheMisses = new AtomicLong(0);
 
     /**
-     * Constructor initializes thread-safe concurrent hash maps.
-     * Uses ConcurrentHashMap for thread safety in multi-threaded environments.
+     * Private constructor to enforce singleton pattern.
+     * Initializes thread-safe concurrent hash maps.
      */
     private static CacheManager instance;
 
@@ -91,28 +91,6 @@ public class CacheManager {
     }
 
     /**
-     * Retrieves a patient from cache.
-     * Tracks cache hits and misses for monitoring.
-     * 
-     * @param patientId Patient identifier
-     * @return Cached patient object or null if not found or expired
-     */
-    public Object getPatient(Integer patientId) {
-        if (isExpired("patient_" + patientId)) {
-            patientCache.remove(patientId);
-            patientCacheMisses.incrementAndGet();
-            return null;
-        }
-        Object cached = patientCache.get(patientId);
-        if (cached != null) {
-            patientCacheHits.incrementAndGet();
-        } else {
-            patientCacheMisses.incrementAndGet();
-        }
-        return cached;
-    }
-
-    /**
      * Stores a doctor in the cache.
      * 
      * @param doctorId Doctor identifier (used as hash key)
@@ -146,36 +124,14 @@ public class CacheManager {
     }
 
     /**
-     * Stores a department in the cache.
+     * Stores an appointment in the cache.
      * 
-     * @param departmentId Department identifier (used as hash key)
-     * @param department   Department object to cache
+     * @param appointmentId Appointment identifier
+     * @param appointment   Appointment object to cache
      */
-    public void cacheDepartment(Integer departmentId, Object department) {
-        departmentCache.put(departmentId, department);
-        cacheTimestamps.put("department_" + departmentId, System.currentTimeMillis());
-    }
-
-    /**
-     * Retrieves a department from cache.
-     * Tracks cache hits and misses for monitoring.
-     * 
-     * @param departmentId Department identifier
-     * @return Cached department object or null if not found or expired
-     */
-    public Object getDepartment(Integer departmentId) {
-        if (isExpired("department_" + departmentId)) {
-            departmentCache.remove(departmentId);
-            departmentCacheMisses.incrementAndGet();
-            return null;
-        }
-        Object cached = departmentCache.get(departmentId);
-        if (cached != null) {
-            departmentCacheHits.incrementAndGet();
-        } else {
-            departmentCacheMisses.incrementAndGet();
-        }
-        return cached;
+    public void cacheAppointment(Integer appointmentId, Object appointment) {
+        appointmentCache.put(appointmentId, appointment);
+        cacheTimestamps.put("appointment_" + appointmentId, System.currentTimeMillis());
     }
 
     /**
@@ -221,39 +177,6 @@ public class CacheManager {
     public void invalidateDepartment(Integer departmentId) {
         departmentCache.remove(departmentId);
         cacheTimestamps.remove("department_" + departmentId);
-    }
-
-    /**
-     * Stores an appointment in the cache.
-     * 
-     * @param appointmentId Appointment identifier
-     * @param appointment   Appointment object to cache
-     */
-    public void cacheAppointment(Integer appointmentId, Object appointment) {
-        appointmentCache.put(appointmentId, appointment);
-        cacheTimestamps.put("appointment_" + appointmentId, System.currentTimeMillis());
-    }
-
-    /**
-     * Retrieves an appointment from cache.
-     * Tracks cache hits and misses for monitoring.
-     * 
-     * @param appointmentId Appointment identifier
-     * @return Cached appointment object or null if not found or expired
-     */
-    public Object getAppointment(Integer appointmentId) {
-        if (isExpired("appointment_" + appointmentId)) {
-            appointmentCache.remove(appointmentId);
-            appointmentCacheMisses.incrementAndGet();
-            return null;
-        }
-        Object cached = appointmentCache.get(appointmentId);
-        if (cached != null) {
-            appointmentCacheHits.incrementAndGet();
-        } else {
-            appointmentCacheMisses.incrementAndGet();
-        }
-        return cached;
     }
 
     /**
@@ -316,96 +239,8 @@ public class CacheManager {
      * @param prefix Key prefix to match
      */
     public void invalidateQueryPattern(String prefix) {
-        // Use iterator to avoid ConcurrentModificationException, though
-        // ConcurrentHashMap handles it well
         queryCache.keySet().removeIf(key -> key.startsWith(prefix));
-
-        // Also clean up timestamps
         cacheTimestamps.keySet().removeIf(key -> key.startsWith("query_" + prefix));
-    }
-
-    /**
-     * Clears all caches.
-     * Useful for cache invalidation after bulk updates.
-     */
-    public void clearAll() {
-        patientCache.clear();
-        doctorCache.clear();
-        departmentCache.clear();
-        cacheTimestamps.clear();
-    }
-
-    /**
-     * Returns the current size of patient cache.
-     * Useful for monitoring cache performance.
-     * 
-     * @return Number of cached patients
-     */
-    public int getPatientCacheSize() {
-        return patientCache.size();
-    }
-
-    /**
-     * Returns the current size of doctor cache.
-     * 
-     * @return Number of cached doctors
-     */
-    public int getDoctorCacheSize() {
-        return doctorCache.size();
-    }
-
-    /**
-     * Returns cache hit statistics for patients.
-     * 
-     * @return Number of cache hits
-     */
-    public long getPatientCacheHits() {
-        return patientCacheHits.get();
-    }
-
-    /**
-     * Returns cache miss statistics for patients.
-     * 
-     * @return Number of cache misses
-     */
-    public long getPatientCacheMisses() {
-        return patientCacheMisses.get();
-    }
-
-    /**
-     * Returns cache hit statistics for doctors.
-     * 
-     * @return Number of cache hits
-     */
-    public long getDoctorCacheHits() {
-        return doctorCacheHits.get();
-    }
-
-    /**
-     * Returns cache miss statistics for doctors.
-     * 
-     * @return Number of cache misses
-     */
-    public long getDoctorCacheMisses() {
-        return doctorCacheMisses.get();
-    }
-
-    /**
-     * Returns cache hit statistics for departments.
-     * 
-     * @return Number of cache hits
-     */
-    public long getDepartmentCacheHits() {
-        return departmentCacheHits.get();
-    }
-
-    /**
-     * Returns cache miss statistics for departments.
-     * 
-     * @return Number of cache misses
-     */
-    public long getDepartmentCacheMisses() {
-        return departmentCacheMisses.get();
     }
 
     /**
@@ -433,24 +268,6 @@ public class CacheManager {
     }
 
     /**
-     * Returns cache hit statistics for appointments.
-     * 
-     * @return Number of cache hits
-     */
-    public long getAppointmentCacheHits() {
-        return appointmentCacheHits.get();
-    }
-
-    /**
-     * Returns cache miss statistics for appointments.
-     * 
-     * @return Number of cache misses
-     */
-    public long getAppointmentCacheMisses() {
-        return appointmentCacheMisses.get();
-    }
-
-    /**
      * Calculates cache hit rate for appointments.
      * 
      * @return Hit rate as a percentage (0-100)
@@ -462,30 +279,15 @@ public class CacheManager {
         return total > 0 ? (hits * 100.0 / total) : 0.0;
     }
 
-    public long getQueryCacheHits() {
-        return queryCacheHits.get();
-    }
-
-    public long getQueryCacheMisses() {
-        return queryCacheMisses.get();
-    }
-
+    /**
+     * Calculates cache hit rate for queries.
+     * 
+     * @return Hit rate as a percentage (0-100)
+     */
     public double getQueryCacheHitRate() {
         long hits = queryCacheHits.get();
         long misses = queryCacheMisses.get();
         long total = hits + misses;
         return total > 0 ? (hits * 100.0 / total) : 0.0;
-    }
-
-    /**
-     * Resets all cache statistics.
-     */
-    public void resetStatistics() {
-        patientCacheHits.set(0);
-        patientCacheMisses.set(0);
-        doctorCacheHits.set(0);
-        doctorCacheMisses.set(0);
-        departmentCacheHits.set(0);
-        departmentCacheMisses.set(0);
     }
 }

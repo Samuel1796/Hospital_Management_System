@@ -4,14 +4,11 @@ import org.example.healthcaremanagementsystem.dao.PatientDAO;
 import org.example.healthcaremanagementsystem.dao.PatientDAOImpl;
 import org.example.healthcaremanagementsystem.model.Patient;
 import org.example.healthcaremanagementsystem.util.CacheManager;
-import org.example.healthcaremanagementsystem.util.SearchUtil;
 import org.example.healthcaremanagementsystem.util.SortingUtil;
 
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
 import java.util.logging.Logger;
-import java.util.logging.Level;
 
 /**
  * Service layer for Patient business logic.
