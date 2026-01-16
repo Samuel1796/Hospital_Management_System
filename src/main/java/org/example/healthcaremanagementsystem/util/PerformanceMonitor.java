@@ -1,60 +1,29 @@
 package org.example.healthcaremanagementsystem.util;
 
-import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.atomic.AtomicLong;
-
 /**
  * Singleton class to monitor system performance metrics.
- * Tracks database query execution times and cache statistics.
+ * Currently a placeholder for future performance monitoring features.
+ * 
+ * @author Healthcare Management System Team
+ * @version 1.0
  */
 public class PerformanceMonitor {
 
     private static PerformanceMonitor instance;
-    private final AtomicLong totalDbQueryTime = new AtomicLong(0);
-    private final AtomicLong totalDbQueries = new AtomicLong(0);
-
-    // Map to store query counts by type (e.g., "SELECT", "INSERT", "UPDATE")
-    private final Map<String, AtomicLong> queryTypeCounts = new ConcurrentHashMap<>();
-
-    // Reference to CacheManager for cache stats
-    private final CacheManager cacheManager;
 
     private PerformanceMonitor() {
-        this.cacheManager = new CacheManager(); // Or inject existing instance if possible
+        // Private constructor for singleton pattern
     }
 
+    /**
+     * Returns the singleton instance of PerformanceMonitor.
+     * 
+     * @return PerformanceMonitor instance
+     */
     public static synchronized PerformanceMonitor getInstance() {
         if (instance == null) {
             instance = new PerformanceMonitor();
         }
         return instance;
-    }
-
-    /**
-     * Records a database query execution.
-     * 
-     * @param queryType  The type/description of query (e.g. "SELECT Patient")
-     * @param durationMs Duration in milliseconds
-     */
-    public void recordQuery(String queryType, long durationMs) {
-        totalDbQueryTime.addAndGet(durationMs);
-        totalDbQueries.incrementAndGet();
-
-        queryTypeCounts.computeIfAbsent(queryType, k -> new AtomicLong(0))
-                .incrementAndGet();
-    }
-
-    public long getTotalDbQueryTime() {
-        return totalDbQueryTime.get();
-    }
-
-    public long getTotalDbQueries() {
-        return totalDbQueries.get();
-    }
-
-    public double getAverageQueryTime() {
-        long queries = totalDbQueries.get();
-        return queries == 0 ? 0 : (double) totalDbQueryTime.get() / queries;
     }
 }

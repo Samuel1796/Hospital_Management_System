@@ -189,11 +189,26 @@ All tables are normalized to 3NF with appropriate foreign key constraints and in
 
 ## SOLID Principles Implementation
 
-- **Single Responsibility**: Each class has one reason to change
-- **Open/Closed**: Extensible through interfaces (DAO pattern)
-- **Liskov Substitution**: Interface implementations are interchangeable
-- **Interface Segregation**: Focused interfaces (PatientDAO, DoctorDAO, etc.)
-- **Dependency Inversion**: Depend on abstractions (DAO interfaces), not concretions
+- **Single Responsibility**: 
+  - Each class has one clear purpose
+  - Controllers are lightweight (~200-300 lines) and delegate to specialized handlers
+  - Handlers are focused: FormHandler (form operations), ControllerHandler (CRUD/search), SetupHandler (UI setup)
+
+- **Open/Closed**: 
+  - Extensible through interfaces (DAO pattern)
+  - Base handlers (`BaseSetupHandler`, `BaseControllerHandler`) allow extension without modification
+
+- **Liskov Substitution**: 
+  - Interface implementations are interchangeable
+  - BaseControllerHandler can be extended by specific handlers (PatientControllerHandler, DoctorControllerHandler, etc.)
+
+- **Interface Segregation**: 
+  - Focused interfaces (PatientDAO, DoctorDAO, etc.)
+  - Handlers have specific responsibilities (form, setup, operations)
+
+- **Dependency Inversion**: 
+  - Depend on abstractions (DAO interfaces), not concretions
+  - Controllers depend on handler abstractions, not implementations
 
 ## Testing
 
