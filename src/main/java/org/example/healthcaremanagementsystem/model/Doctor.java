@@ -19,6 +19,8 @@ public class Doctor {
     private LocalDate hireDate;
     private String status; // Active, Inactive, On Leave
 
+    private static final String NAME_REGEX = "^[A-Za-z\\s\\-']+$";
+
     /**
      * Default constructor.
      */
@@ -41,8 +43,8 @@ public class Doctor {
     public Doctor(String firstName, String lastName, String email,
             String phoneNumber, String specialization, Integer departmentId,
             String licenseNumber, LocalDate hireDate, String status) {
-        this.firstName = firstName;
-        this.lastName = lastName;
+        setFirstName(firstName);
+        setLastName(lastName);
         this.email = email;
         this.phoneNumber = phoneNumber;
         this.specialization = specialization;
@@ -71,8 +73,8 @@ public class Doctor {
             Integer departmentId, String licenseNumber, LocalDate hireDate,
             String status) {
         this.doctorId = doctorId;
-        this.firstName = firstName;
-        this.lastName = lastName;
+        setFirstName(firstName);
+        setLastName(lastName);
         this.email = email;
         this.phoneNumber = phoneNumber;
         this.specialization = specialization;
@@ -97,6 +99,9 @@ public class Doctor {
     }
 
     public void setFirstName(String firstName) {
+        if (firstName != null && !firstName.matches(NAME_REGEX)) {
+            throw new IllegalArgumentException("First name contains invalid characters.");
+        }
         this.firstName = firstName;
     }
 
@@ -105,6 +110,9 @@ public class Doctor {
     }
 
     public void setLastName(String lastName) {
+        if (lastName != null && !lastName.matches(NAME_REGEX)) {
+            throw new IllegalArgumentException("Last name contains invalid characters.");
+        }
         this.lastName = lastName;
     }
 

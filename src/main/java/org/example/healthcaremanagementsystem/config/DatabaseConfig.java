@@ -4,31 +4,35 @@ import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
 import java.util.Properties;
+import io.github.cdimascio.dotenv.Dotenv;
 
 /**
  * Database configuration and connection management class.
- * Follows Single Responsibility Principle by handling only database connectivity.
+ * Follows Single Responsibility Principle by handling only database
+ * connectivity.
  * 
  * @author Healthcare Management System Team
  * @version 1.0
  */
 public class DatabaseConfig {
-    
+
+    private static final Dotenv dotenv = Dotenv.load();
+
     // Database connection parameters
-    private static final String DB_URL = "jdbc:postgresql://localhost:5432/healthcare_db";
-    private static final String DB_USER = "postgres";
-    private static final String DB_PASSWORD = "0050";
-    
+    private static final String DB_URL = dotenv.get("DB_URL");
+    private static final String DB_USER = dotenv.get("DB_USER");
+    private static final String DB_PASSWORD = dotenv.get("DB_PASSWORD");
+
     // Instance for connection management
     private static DatabaseConfig instance;
-    
+
     /**
      * Private constructor to enforce singleton pattern.
      */
     private DatabaseConfig() {
         // Private constructor to prevent instantiation
     }
-    
+
     /**
      * Returns the singleton instance of DatabaseConfig.
      * Follows Singleton pattern for resource management.
@@ -41,10 +45,10 @@ public class DatabaseConfig {
         }
         return instance;
     }
-    
+
     // Flag to track if connection message has been shown
     private static boolean connectionMessageShown = false;
-    
+
     /**
      * Establishes a connection to the PostgreSQL database.
      * Creates a new connection for each request (proper connection handling).
@@ -56,31 +60,31 @@ public class DatabaseConfig {
         try {
             // Load PostgreSQL JDBC driver
             Class.forName("org.postgresql.Driver");
-            
+
             // Set connection properties for optimal performance
             Properties props = new Properties();
             props.setProperty("user", DB_USER);
             props.setProperty("password", DB_PASSWORD);
             props.setProperty("ssl", "false");
-            
+
             // Establish connection
             Connection conn = DriverManager.getConnection(DB_URL, props);
-            
+
             // Enable auto-commit for transaction management
             conn.setAutoCommit(true);
-            
+
             // Only show connection message once
             if (!connectionMessageShown) {
                 System.out.println("Database connection established successfully.");
                 connectionMessageShown = true;
             }
-            
+
             return conn;
         } catch (ClassNotFoundException e) {
             throw new SQLException("PostgreSQL JDBC Driver not found.", e);
         }
     }
-    
+
     /**
      * Closes the database connection.
      * Properly releases database resources.
@@ -93,7 +97,7 @@ public class DatabaseConfig {
             connection.close();
         }
     }
-    
+
     /**
      * Tests the database connection.
      * Useful for connection validation during application startup.
@@ -109,4 +113,3 @@ public class DatabaseConfig {
         }
     }
 }
-

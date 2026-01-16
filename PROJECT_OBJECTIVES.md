@@ -334,3 +334,208 @@ logger.info(String.format("[CACHE] HIT - All Patients - %d records - %d ms",
 - ✅ Maintainability: Reduced complexity improves code maintainability
 - ✅ Reusability: Base handlers provide common functionality across all controllers
 
+## Objectives
+
+1. **Efficient Data Indexing**
+   - Objective: Ensure fast lookups and queries by indexing frequently accessed columns.
+   - Verification: 20+ indexes implemented in `database/schema.sql` (lines 180-211), covering names, emails, dates, and foreign keys. DAO queries utilize these indexes for optimized lookups.
+
+2. **Optimized Hashing and Caching**
+   - Objective: Use hash-based structures for rapid in-memory access and caching.
+   - Verification: `CacheManager.java` uses `ConcurrentHashMap` for O(1) lookups. Hash-based caching is implemented for patients, doctors, departments, appointments, and queries, with thread-safe cache statistics.
+
+3. **Robust Searching Capabilities**
+   - Objective: Provide flexible and efficient search for both in-memory and database data.
+   - Verification: `SearchUtil.java` offers linear search (O(n)) for in-memory filtering. Database-level search uses SQL `LIKE` with index support (O(log n)), case-insensitive search via `LOWER()`, and pagination in DAO implementations.
+
+4. **Advanced Sorting Mechanisms**
+   - Objective: Enable sorting of results both in-memory and at the database level.
+   - Verification: `SortingUtil.java` uses Java’s TimSort (O(n log n)). Database-level sorting is achieved with `ORDER BY` clauses, and sorting is used in `PatientService` and `DoctorService` for name-based ordering.
+
+**Usage in Services**:
+- `PatientService.java` - Uses SortingUtil to sort patients by name
+- `CacheManager.java` - Uses hashing for fast cache lookups
+- `SearchUtil.java` - Used throughout controllers for search operations
+
+**Links**:
+- Indexing: [`database/schema.sql`](database/schema.sql)
+- Caching/Hashing: [`src/main/java/org/example/healthcaremanagementsystem/util/CacheManager.java`](src/main/java/org/example/healthcaremanagementsystem/util/CacheManager.java)
+- Searching: [`src/main/java/org/example/healthcaremanagementsystem/util/SearchUtil.java`](src/main/java/org/example/healthcaremanagementsystem/util/SearchUtil.java)
+- Sorting: [`src/main/java/org/example/healthcaremanagementsystem/util/SortingUtil.java`](src/main/java/org/example/healthcaremanagementsystem/util/SortingUtil.java)
+
+---
+
+## Objective 5: Integrate Database Operations into a JavaFX Application Interface
+
+**Status**: ✅ **FULLY IMPLEMENTED**
+
+### Implementation Details:
+
+**JavaFX Application**:
+- **Location**: `src/main/java/org/example/healthcaremanagementsystem/HealthcareApplication.java`
+- Main application entry point
+- FXML-based UI definitions in `src/main/resources/`
+
+**UI Modules**:
+- **Patient Management**: `patient-management.fxml` + `PatientController.java` (~227 lines)
+- **Doctor Management**: `doctor-management.fxml` + `DoctorController.java` (~234 lines)
+- **Appointment Management**: `appointment-management.fxml` + `AppointmentController.java` (~317 lines)
+- **Performance & Analytics**: `performance-analytics.fxml` + `PerformanceController.java`
+- **Main Dashboard**: `main-view.fxml` + `MainController.java`
+
+**Architecture - SOLID Principles**:
+- **Single Responsibility**: Controllers delegate to specialized handlers
+  - `PatientControllerHandler` / `DoctorControllerHandler` / `AppointmentControllerHandler` - CRUD and data operations
+  - `PatientSetupHandler` / `DoctorSetupHandler` / `AppointmentSetupHandler` - UI setup operations
+  - `PatientFormHandler` / `DoctorFormHandler` / `AppointmentFormHandler` - Form operations
+- **DRY Principle**: Base handlers eliminate redundancy
+  - `BaseSetupHandler` - Common setup operations (button actions, pagination, button states)
+  - `BaseControllerHandler` - Common search and pagination logic
+- **Controller Refactoring**: Reduced from 400-800 lines to 200-300 lines (41-47% reduction)
+
+**Integration Points**:
+- Controllers use Service layer → Service uses DAO layer → DAO uses JDBC
+- Real-time data binding with JavaFX ObservableList
+- Form validation and error handling
+- Pagination for large datasets
+- Search functionality with instant results
+
+**Features**:
+- ✅ Complete CRUD operations through UI
+- ✅ Input validation (email, phone, dates)
+- ✅ Search and filter capabilities
+- ✅ Data pagination
+- ✅ Error feedback and user notifications
+- ✅ Responsive table views
+- ✅ SOLID principles implementation with handler-based architecture
+
+**Handler Architecture**:
+- **Base Handlers**: `BaseSetupHandler.java`, `BaseControllerHandler.java`
+- **Form Handlers**: `PatientFormHandler.java`, `DoctorFormHandler.java`, `AppointmentFormHandler.java`
+- **Controller Handlers**: `PatientControllerHandler.java`, `DoctorControllerHandler.java`, `AppointmentControllerHandler.java`
+- **Setup Handlers**: `PatientSetupHandler.java`, `DoctorSetupHandler.java`, `AppointmentSetupHandler.java`
+
+**Links**:
+- Main Application: [`src/main/java/org/example/healthcaremanagementsystem/HealthcareApplication.java`](src/main/java/org/example/healthcaremanagementsystem/HealthcareApplication.java)
+- Controllers: [`src/main/java/org/example/healthcaremanagementsystem/controller/`](src/main/java/org/example/healthcaremanagementsystem/controller/)
+- Handlers: [`src/main/java/org/example/healthcaremanagementsystem/controller/handler/`](src/main/java/org/example/healthcaremanagementsystem/controller/handler/)
+- FXML Files: [`src/main/resources/org/example/healthcaremanagementsystem/`](src/main/resources/org/example/healthcaremanagementsystem/)
+
+---
+
+## Objective 6: Compare Relational and NoSQL Designs for Unstructured Data
+
+**Status**: ✅ **FULLY IMPLEMENTED**
+
+### Implementation Details:
+
+**Documentation Location**: `docs/NOSQL_DESIGN.md`
+
+The project includes comprehensive documentation comparing relational and NoSQL approaches:
+
+**Relational Database (PostgreSQL)**:
+- Used for structured data: patients, doctors, appointments, prescriptions
+- ACID compliance for transactional integrity
+- Normalized schema for data consistency
+- SQL queries for complex relationships
+
+**NoSQL Design (MongoDB)**:
+- **Location**: `docs/NOSQL_DESIGN.md`
+- Designed for unstructured data: patient notes, medical logs
+- Document-based storage for flexible schema
+- JSON structure examples provided
+- Integration strategy documented
+
+**Comparison Points Documented**:
+1. **Data Structure**: Relational (tables) vs NoSQL (documents)
+2. **Schema Flexibility**: Fixed schema vs dynamic schema
+3. **Query Capabilities**: SQL vs NoSQL query languages
+4. **Scalability**: Vertical vs horizontal scaling
+5. **Use Cases**: When to use each approach
+
+**Implementation**:
+- MongoDB connection class: `src/main/java/org/example/healthcaremanagementsystem/config/MongoDBConnection.java`
+- NoSQL model design: `src/main/java/org/example/healthcaremanagementsystem/model/MedicalLog.java`
+
+**Links**:
+- NoSQL Design Document: [`docs/NOSQL_DESIGN.md`](docs/NOSQL_DESIGN.md)
+- MongoDB Connection: [`src/main/java/org/example/healthcaremanagementsystem/config/MongoDBConnection.java`](src/main/java/org/example/healthcaremanagementsystem/config/MongoDBConnection.java)
+
+---
+
+## Objective 7: Measure and Document Performance Improvement Through Optimization and Indexing
+
+**Status**: ✅ **FULLY IMPLEMENTED**
+
+### Implementation Details:
+
+**Performance Monitoring**:
+- **Location**: `src/main/java/org/example/healthcaremanagementsystem/util/PerformanceMonitor.java`
+- Tracks query execution times
+- Measures cache hit/miss rates
+- Logs performance metrics
+
+**Cache Performance**:
+- **Location**: `src/main/java/org/example/healthcaremanagementsystem/util/CacheManager.java`
+- Cache hit/miss statistics tracked
+- TTL (Time To Live) for cache entries
+- Cache invalidation strategies
+
+**Performance Dashboard**:
+- **Location**: `src/main/java/org/example/healthcaremanagementsystem/controller/PerformanceController.java`
+- **UI**: `performance-analytics.fxml`
+- Displays:
+  - System statistics
+  - Cache hit rates
+  - Query performance metrics
+  - Before/after optimization comparisons
+  - Appointments by status visualization
+
+**Documentation**:
+- Performance improvements documented in service layer
+- Cache performance logged in console
+- Query optimization results visible in Performance Dashboard
+
+**Example Performance Metrics**:
+```java
+// From PatientService.java
+long startTime = System.currentTimeMillis();
+// ... database operation ...
+long duration = System.currentTimeMillis() - startTime;
+logger.info(String.format("[CACHE] HIT - All Patients - %d records - %d ms", 
+    patients.size(), duration));
+```
+
+**Indexing Impact**:
+- Indexes documented in `database/schema.sql`
+- Query execution plans improved with indexes
+- Search operations optimized with composite indexes
+
+**Links**:
+- Performance Monitor: [`src/main/java/org/example/healthcaremanagementsystem/util/PerformanceMonitor.java`](src/main/java/org/example/healthcaremanagementsystem/util/PerformanceMonitor.java)
+- Performance Controller: [`src/main/java/org/example/healthcaremanagementsystem/controller/PerformanceController.java`](src/main/java/org/example/healthcaremanagementsystem/controller/PerformanceController.java)
+- Cache Manager: [`src/main/java/org/example/healthcaremanagementsystem/util/CacheManager.java`](src/main/java/org/example/healthcaremanagementsystem/util/CacheManager.java)
+
+---
+
+## Summary
+
+| Objective | Status | Implementation Location |
+|-----------|--------|------------------------|
+| 1. Database Design & Normalization | ✅ Complete | `database/schema.sql` |
+| 2. Database Models (Conceptual, Logical, Physical) | ✅ Complete | `docs/` directory |
+| 3. CRUD Operations & Complex Queries | ✅ Complete | `dao/` package |
+| 4. Indexing, Hashing, Searching, Sorting | ✅ Complete | `util/` package, `database/schema.sql` |
+| 5. JavaFX Integration | ✅ Complete | `controller/` package, FXML files |
+| 6. Relational vs NoSQL Comparison | ✅ Complete | `docs/NOSQL_DESIGN.md` |
+| 7. Performance Measurement & Documentation | ✅ Complete | `util/PerformanceMonitor.java`, Performance Dashboard |
+| 8. SOLID Principles & Code Quality | ✅ Complete | Handler-based architecture, base classes, refactored controllers |
+
+**All objectives are fully implemented and documented.**
+
+**Code Quality Highlights**:
+- ✅ Controllers refactored: 41-47% line reduction through handler extraction
+- ✅ DRY principle: Base handlers (`BaseSetupHandler`, `BaseControllerHandler`) eliminate code duplication
+- ✅ Single Responsibility: Each handler has one clear purpose (FormHandler, ControllerHandler, SetupHandler)
+- ✅ Maintainability: Reduced complexity improves code maintainability
+- ✅ Reusability: Base handlers provide common functionality across all controllers

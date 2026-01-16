@@ -19,8 +19,6 @@ public class SearchUtil {
     
     /**
      * Performs linear search on a list.
-     * Time complexity: O(n) - checks each element sequentially
-     * Suitable for unsorted data or small datasets
      * 
      * @param <T> Type of elements in the list
      * @param list List to search

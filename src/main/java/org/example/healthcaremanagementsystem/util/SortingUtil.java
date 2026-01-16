@@ -12,15 +12,13 @@ import java.util.List;
  * - TimSort (hybrid of merge sort and insertion sort) - O(n log n)
  * - Comparator-based sorting for flexibility
  * 
- * @author Healthcare Management System Team
- * @version 1.0
+
  */
 public class SortingUtil {
 
     /**
      * Sorts a list using a custom comparator.
-     * Uses Java's built-in TimSort algorithm which provides stable, O(n log n) performance.
-     * 
+     *
      * @param <T>        Type of elements in the list
      * @param list       List to be sorted
      * @param comparator Comparator defining sort order
